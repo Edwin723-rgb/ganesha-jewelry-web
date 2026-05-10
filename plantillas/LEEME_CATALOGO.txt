@@ -1,38 +1,51 @@
 PLANTILLA DE CATÁLOGO PARA LA WEB DE GANESHA JEWELRY
 =====================================================
 
+¿QUÉ ES ESTE ARCHIVO?
+---------------------
+Este LEEME es solo una GUÍA en texto. Excel NO lo “lee” solo ni rellena celdas.
+Úsalo como checklist mientras editas «ganesha_catalogo_plantilla.csv» (o tu .xlsx).
+
+Yo (desde Cursor/GitHub) NO puedo abrir archivos en tu PC (ej. OneDrive\Desktop\...).
+Tú editas el Excel/CSV en tu máquina siguiendo los puntos de abajo.
+
+PASO A PASO EN EXCEL (Windows)
+-------------------------------
+1. Abre «ganesha_catalogo_plantilla.csv» con Excel (o crea un .xlsx y copia la fila de encabezados).
+2. NO borres ni muevas la FILA 1 (encabezados: nombre, foto, categoria, precio, stock, ...).
+3. Desde la FILA 2: un producto por fila.
+4. Guarda como .xlsx si quieres; para subir a Google Sheets puedes copiar y pegar la tabla entera.
+
 1. ARCHIVO
-   - Abre «ganesha_catalogo_plantilla.csv» con Excel y guárdalo como «.xlsx» si prefieres.
-   - Mantén SIEMPRE la PRIMERA FILA como encabezados (nombre de columnas). No la borres.
+   - «ganesha_catalogo_plantilla.csv» puede abrirse con Excel y guardarse como «.xlsx».
+   - Mantén SIEMPRE la PRIMERA FILA como encabezados. No la borres.
 
 2. COLUMNAS QUE USA LA WEB (el orden puede cambiar si los títulos se reconocen)
    OBLIGATORIAS para que una fila aparezca:
    - nombre     : Nombre visible del producto.
-   - foto       : URL pública HTTPS de la imagen principal (Instagram/CDN/Google Drive público suele funcionar si la URL apunta directo al archivo).
-   - categoria  : Una de estas CUATRO (minúsculas o mayúsculas, con o sin tilde según igualdad):
+   - foto       : URL pública HTTPS de la imagen principal (debe abrir la imagen en el navegador).
+   - categoria  : Solo una de estas CUATRO textos:
                    anillos | collares | pulseras | aretes
-   - stock      : Visible en web si vale: sí | yes | 1 | true
-                 (Sin eso correcto, puede filtrarse y no verse el producto).
+   - stock      : Para que se muestre en la web usa: sí | yes | 1 | true
+                 (Si falla, el producto puede no aparecer.)
 
-   OPCIONALES (recomendadas):
-   - precio     : Número (ej. 450 o 449.50). Vacío o 0 = muestra «Consultar precio».
+   OPCIONALES:
+   - precio     : Número (ej. 450 o 449.50). Vacío o 0 = «Consultar precio» en la web.
    - descripcion: Texto en el popup del producto.
-   - tallas     : Lista separada por punto y coma (;) si aplica.
-   - badge      : Etiqueta gris oscura sobre la foto (ej. «Agotado», «Última pieza»).
-   - foto_modelo: URL de segunda imagen (hover en la tarjeta).
+   - tallas     : Lista con punto y coma (;) entre valores, ej. 5;6;7
+   - badge      : Etiqueta sobre la foto (ej. «Agotado», «Última pieza»).
+   - foto_modelo: URL de segunda imagen (efecto hover en la tarjeta).
 
-3. RUTAS /collections/…
-   No debes añadir columnas nuevas para eso: la web filtra por «categoria» igual que antes.
+3. RUTAS /collections/… EN LA WEB
+   No hace falta columna extra: la web filtra por «categoria» (aretes → /collections/aretes, etc.).
 
-4. SUBIR A GOOGLE SHEETS (lo que lee la página)
-   La web descarga CSV desde la URL que está en index.html → window.GANESHA_SHEET_CSV
+4. GOOGLE SHEETS (lo que lee la página en producción)
+   La web NO abre tu archivo local; descarga datos desde la URL en index.html:
+   window.GANESHA_SHEET_CSV = "...gviz/tq?tqx=out:csv&gid=..."
    Pasos típicos:
-   - Sube o pega tu tabla en Google Sheets.
-   - Archivo → Compartir → «Cualquier persona con el enlace» como Lector (o similar).
-   - La URL del CSV debe seguir el formato gviz (tqx=out:csv) con el gid de la pestaña correcta.
-   - Si cambias de pestaña, actualiza el parámetro gid en esa URL en el código.
+   - Pega tu tabla en Google Sheets (mismos encabezados).
+   - Compartir → cualquier persona con el enlace (lectura).
+   - Mantén la misma pestaña o actualiza el parámetro gid en esa URL si cambias de hoja.
 
-5. PROBAR EN LOCAL
-   Tras publicar la hoja, recarga la web; si falla, abre la consola del navegador (F12) por si el CSV no es accesible.
-
-Si algo no aparece: revisa stock=sí, categoría exacta, URL de foto accesible y que la fila de encabezados tenga «nombre» y «foto».
+5. SI ALGO NO APARECE EN LA WEB
+   Revisa en este orden: stock = sí | categoría exacta | URL de foto que cargue | fila 1 con nombre y foto.
