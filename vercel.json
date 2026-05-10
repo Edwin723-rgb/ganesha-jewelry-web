@@ -3,7 +3,7 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/collections/:category",
+      "source": "/collections/:slug*",
       "destination": "/index.html"
     }
   ],
