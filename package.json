@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "scripts": {
+    "preview": "npx --yes serve@14 . -l 8080 --no-request-logging"
+  }
+}

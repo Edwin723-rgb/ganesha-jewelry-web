@@ -1,0 +1,38 @@
+PLANTILLA DE CATÁLOGO PARA LA WEB DE GANESHA JEWELRY
+=====================================================
+
+1. ARCHIVO
+   - Abre «ganesha_catalogo_plantilla.csv» con Excel y guárdalo como «.xlsx» si prefieres.
+   - Mantén SIEMPRE la PRIMERA FILA como encabezados (nombre de columnas). No la borres.
+
+2. COLUMNAS QUE USA LA WEB (el orden puede cambiar si los títulos se reconocen)
+   OBLIGATORIAS para que una fila aparezca:
+   - nombre     : Nombre visible del producto.
+   - foto       : URL pública HTTPS de la imagen principal (Instagram/CDN/Google Drive público suele funcionar si la URL apunta directo al archivo).
+   - categoria  : Una de estas CUATRO (minúsculas o mayúsculas, con o sin tilde según igualdad):
+                   anillos | collares | pulseras | aretes
+   - stock      : Visible en web si vale: sí | yes | 1 | true
+                 (Sin eso correcto, puede filtrarse y no verse el producto).
+
+   OPCIONALES (recomendadas):
+   - precio     : Número (ej. 450 o 449.50). Vacío o 0 = muestra «Consultar precio».
+   - descripcion: Texto en el popup del producto.
+   - tallas     : Lista separada por punto y coma (;) si aplica.
+   - badge      : Etiqueta gris oscura sobre la foto (ej. «Agotado», «Última pieza»).
+   - foto_modelo: URL de segunda imagen (hover en la tarjeta).
+
+3. RUTAS /collections/…
+   No debes añadir columnas nuevas para eso: la web filtra por «categoria» igual que antes.
+
+4. SUBIR A GOOGLE SHEETS (lo que lee la página)
+   La web descarga CSV desde la URL que está en index.html → window.GANESHA_SHEET_CSV
+   Pasos típicos:
+   - Sube o pega tu tabla en Google Sheets.
+   - Archivo → Compartir → «Cualquier persona con el enlace» como Lector (o similar).
+   - La URL del CSV debe seguir el formato gviz (tqx=out:csv) con el gid de la pestaña correcta.
+   - Si cambias de pestaña, actualiza el parámetro gid en esa URL en el código.
+
+5. PROBAR EN LOCAL
+   Tras publicar la hoja, recarga la web; si falla, abre la consola del navegador (F12) por si el CSV no es accesible.
+
+Si algo no aparece: revisa stock=sí, categoría exacta, URL de foto accesible y que la fila de encabezados tenga «nombre» y «foto».
