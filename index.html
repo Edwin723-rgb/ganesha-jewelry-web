@@ -1752,7 +1752,10 @@
   <!-- NÚMERO WHATSAPP: cambia aquí (52 + 10 dígitos) -->
   <script>
     window.GANESHA_WHATSAPP = "5299999999999";
-    window.GANESHA_SHEET_CSV = "https://docs.google.com/spreadsheets/d/1PuOslKBK9Lep5olhKRYo831IeOdQnamEpdc4X_VkItE/gviz/tq?tqx=out:csv&gid=626003925";
+    window.GANESHA_SHEET_CSV = "https://docs.google.com/spreadsheets/d/1PuOslKBK9Lep5olhKRYo831IeOdQnamEpdc4X_VkItE/gviz/tqx=out:csv&gid=626003925";
+    /* Opcional: segunda pestaña del mismo Sheet (export CSV) con banners y portadas — ver plantillas/ganesha_medios_plantilla.csv */
+    window.GANESHA_MEDIA_CSV = "";
+    window.__ganeshaSiteMedia = {};
     (function () {
       var phone = window.GANESHA_WHATSAPP.replace(/\D/g,"");
       var base  = "https://wa.me/" + phone;
@@ -1898,6 +1901,17 @@
           var subEl = document.getElementById("collection-page-hero-sub");
           if (titleEl) titleEl.textContent = String(copy.title || "").toUpperCase();
           if (subEl) subEl.textContent = copy.subtitle || "";
+          var bgEl = heroEl.querySelector(".collection-page-hero__bg");
+          if (bgEl) {
+            var media = window.__ganeshaSiteMedia || {};
+            var bannerKey = "banner_" + cat;
+            var bannerUrl = normalizeMediaImageUrl(media[bannerKey]);
+            if (bannerUrl) {
+              bgEl.style.backgroundImage = cssImageUrl(bannerUrl);
+            } else {
+              bgEl.style.removeProperty("background-image");
+            }
+          }
         }
         if (bcBar) {
           bcBar.removeAttribute("hidden");
@@ -2326,6 +2340,148 @@
         return out;
       }
 
+      function canonicalMediaFieldKey(norm) {
+        if (!norm) return "";
+        var n = norm.replace(/^portada_/, "cover_");
+        var hm = n.match(/^hero[_-]?([123])$/);
+        if (hm) return "hero_" + hm[1];
+        if (n === "hero1" || n === "carrusel_1" || n === "inicio_1") return "hero_1";
+        if (n === "hero2" || n === "carrusel_2" || n === "inicio_2") return "hero_2";
+        if (n === "hero3" || n === "carrusel_3" || n === "inicio_3") return "hero_3";
+        if (n === "banner_todas" || n === "banner_todo" || n === "banner_all") return "banner_all";
+        if (
+          n === "banner_aretes" ||
+          n === "banner_anillos" ||
+          n === "banner_collares" ||
+          n === "banner_pulseras"
+        )
+          return n;
+        if (
+          n === "cover_aretes" ||
+          n === "cover_anillos" ||
+          n === "cover_collares" ||
+          n === "cover_pulseras" ||
+          n === "cover_gargantillas"
+        )
+          return n;
+        return "";
+      }
+
+      function findMediaHeaderRowIndex(matrix) {
+        for (var r = 0; r < matrix.length; r++) {
+          var row = matrix[r];
+          var count = 0;
+          for (var c = 0; c < row.length; c++) {
+            if (canonicalMediaFieldKey(normalizeHeader(row[c]))) count++;
+          }
+          if (count >= 1) return r;
+        }
+        return -1;
+      }
+
+      function mediaObjectsFromMatrix(matrix) {
+        var hi = findMediaHeaderRowIndex(matrix);
+        if (hi === -1) return null;
+        var headerRow = matrix[hi];
+        var colToKey = [];
+        for (var c = 0; c < headerRow.length; c++) {
+          colToKey[c] = canonicalMediaFieldKey(normalizeHeader(headerRow[c]));
+        }
+        var merged = {};
+        for (var r = hi + 1; r < matrix.length; r++) {
+          var cells = matrix[r];
+          for (var ci = 0; ci < colToKey.length; ci++) {
+            var k = colToKey[ci];
+            if (!k) continue;
+            var val = cells[ci] != null ? String(cells[ci]).trim() : "";
+            if (val) merged[k] = val;
+          }
+        }
+        return merged;
+      }
+
+      function driveFileIdFromUrl(url) {
+        var u = String(url || "");
+        var m = u.match(/\/file\/d\/([^/]+)/);
+        if (m) return m[1];
+        var m2 = u.match(/[?&]id=([^&]+)/);
+        return m2 ? m2[1] : "";
+      }
+
+      function normalizeMediaImageUrl(raw) {
+        var u = String(raw || "").trim();
+        if (!u) return "";
+        if (u.indexOf("drive.google.com") !== -1) {
+          var id = driveFileIdFromUrl(u);
+          if (id) return "https://drive.google.com/uc?export=view&id=" + id;
+        }
+        return u;
+      }
+
+      function cssImageUrl(u) {
+        var s = String(u || "").trim();
+        if (!s) return "";
+        return 'url("' + s.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '")';
+      }
+
+      function applyHeroCarouselMedia(media) {
+        var root = document.querySelector("[data-hero-carousel]");
+        if (!root || !media) return;
+        root.querySelectorAll(".hero-slide img").forEach(function (img, i) {
+          var key = "hero_" + (i + 1);
+          var nu = normalizeMediaImageUrl(media[key]);
+          if (nu) img.src = nu;
+        });
+      }
+
+      function applyHomeCategoryCovers(media) {
+        if (!media) return;
+        var map = {
+          cover_aretes: ".cat-mosaic-tile--aretes",
+          cover_collares: ".cat-mosaic-tile--collares",
+          cover_pulseras: ".cat-mosaic-tile--pulseras",
+          cover_gargantillas: ".cat-mosaic-tile--gargantillas",
+          cover_anillos: ".cat-mosaic-tile--anillos"
+        };
+        Object.keys(map).forEach(function (key) {
+          var el = document.querySelector(map[key]);
+          if (!el) return;
+          var nu = normalizeMediaImageUrl(media[key]);
+          if (nu) {
+            el.style.backgroundImage = cssImageUrl(nu);
+          } else {
+            el.style.removeProperty("background-image");
+          }
+        });
+      }
+
+      function applySiteMediaFromObject(obj) {
+        if (!obj || typeof obj !== "object") return;
+        window.__ganeshaSiteMedia = obj;
+        applyHeroCarouselMedia(obj);
+        applyHomeCategoryCovers(obj);
+        updatePageShell();
+      }
+
+      function loadSiteMedia() {
+        var url = window.GANESHA_MEDIA_CSV || "";
+        if (!url || url.indexOf("SPREADSHEET_ID") !== -1) return Promise.resolve();
+        return fetch(url, { cache: "no-store" })
+          .then(function (res) {
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            return res.text();
+          })
+          .then(function (text) {
+            var matrix = parseCSV(text);
+            if (!matrix.length) return;
+            var media = mediaObjectsFromMatrix(matrix);
+            if (media && Object.keys(media).length) applySiteMediaFromObject(media);
+          })
+          .catch(function (err) {
+            if (typeof console !== "undefined" && console.warn) console.warn("[Ganesha medios]", err);
+          });
+      }
+
       function stockVisible(v) {
         var s = String(v || "")
           .trim()
@@ -2597,6 +2753,8 @@
       }
 
       window.loadCatalog = loadCatalog;
+      window.loadSiteMedia = loadSiteMedia;
+      loadSiteMedia();
       loadCatalog();
 
       if (modalClose) modalClose.addEventListener("click", closeModal);

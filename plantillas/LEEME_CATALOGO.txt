@@ -47,5 +47,25 @@ PASO A PASO EN EXCEL (Windows)
    - Compartir → cualquier persona con el enlace (lectura).
    - Mantén la misma pestaña o actualiza el parámetro gid en esa URL si cambias de hoja.
 
-5. SI ALGO NO APARECE EN LA WEB
+5. BANNERS DEL INICIO, PORTADAS DEL MENÚ Y BANNERS DE /collections/… (hoja «Medios»)
+   La hoja de PRODUCTOS solo alimenta las tarjetas del catálogo. Para el carrusel grande del inicio,
+   las cinco casillas de categorías en la página principal y el fondo del banner de cada colección,
+   usa una SEGUNDA pestaña en el mismo Google Sheet (o otro archivo) con la plantilla
+   «plantillas/ganesha_medios_plantilla.csv»:
+
+   - Primera fila: encabezados exactos (hero_1, hero_2, hero_3, banner_all, banner_aretes, … cover_anillos).
+   - Filas siguientes: una o más filas con URLs HTTPS en las celdas que quieras llenar (vacío = la web
+     sigue usando el diseño por defecto en ese bloque).
+
+   En index.html configura la exportación CSV de esa pestaña:
+     window.GANESHA_MEDIA_CSV = "https://docs.google.com/spreadsheets/d/TU_ID/gviz/tq?tqx=out:csv&gid=TU_GID";
+
+   Imágenes y Google Drive:
+   - Lo más fiable es la misma regla que «foto» de productos: un enlace que al abrirlo en el navegador
+     muestre SOLO la imagen (PNG/JPG/WebP), por ejemplo tu web, Shopify CDN, ImgBB «direct link», etc.
+   - Si pegas un enlace «Abrir archivo» de Drive (…/file/d/ID/view…), la página intenta convertirlo a
+     formato de vista; a veces Drive bloquea o va lento. Si una imagen no carga, sube la foto a un host
+     con URL directa o haz el archivo de Drive «Cualquiera con el enlace» y prueba de nuevo.
+
+6. SI ALGO NO APARECE EN LA WEB
    Revisa en este orden: stock = sí | categoría exacta | URL de foto que cargue | fila 1 con nombre y foto.
