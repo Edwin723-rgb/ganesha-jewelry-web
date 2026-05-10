@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/collections/:category", "destination": "/index.html" }
+    { "source": "/collections/:slug", "destination": "/index.html" },
+    { "source": "/collections/:slug/", "destination": "/index.html" }
   ]
 }

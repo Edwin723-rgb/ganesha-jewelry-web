@@ -1,10 +1,15 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
+  "framework": null,
   "rewrites": [
     {
-      "source": "/collections/:slug*",
-      "destination": "/index.html"
+      "source": "/collections/:slug",
+      "destination": "/"
+    },
+    {
+      "source": "/collections/:slug/",
+      "destination": "/"
     }
   ],
   "headers": [
