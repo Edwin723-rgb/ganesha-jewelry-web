@@ -1,12 +1,13 @@
 /**
  * GET /api/instagram-image?url=https://www.instagram.com/p/CODE/&img_index=1
- * Redirige (302) a la imagen en CDN. Carruseles: la página /embed/ lista las fotos en orden.
+ * Descarga la imagen en el servidor y la devuelve (evita CORP same-origin del CDN en img_index≥2).
+ * ?redirect=1 fuerza 302 al CDN (solo depuración).
  */
 
 module.exports = async function handler(req, res) {
-  if (req.method !== "GET" && req.method !== "HEAD") {
+  if (req.method !== "GET") {
     res.statusCode = 405;
-    res.setHeader("Allow", "GET, HEAD");
+    res.setHeader("Allow", "GET");
     res.end();
     return;
   }
@@ -103,10 +104,46 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  res.statusCode = 302;
-  res.setHeader("Location", chosen);
-  res.setHeader("Cache-Control", "public, s-maxage=43200, stale-while-revalidate=86400");
-  res.end();
+  var forceRedirect = req.query && String(req.query.redirect) === "1";
+
+  if (forceRedirect) {
+    res.statusCode = 302;
+    res.setHeader("Location", chosen);
+    res.setHeader("Cache-Control", "public, s-maxage=43200, stale-while-revalidate=86400");
+    res.end();
+    return;
+  }
+
+  var cdnHeaders = {
+    "User-Agent": uaDesktop,
+    Referer: "https://www.instagram.com/",
+    Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+  };
+
+  try {
+    var rImg = await fetch(chosen, {
+      redirect: "follow",
+      headers: cdnHeaders,
+    });
+    if (!rImg.ok) {
+      res.statusCode = 502;
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");
+      res.end("Instagram devolvió HTTP " + rImg.status + " al obtener la imagen.");
+      return;
+    }
+    var buf = Buffer.from(await rImg.arrayBuffer());
+    var ct = rImg.headers.get("content-type") || "image/jpeg";
+    res.statusCode = 200;
+    res.setHeader("Content-Type", ct);
+    res.setHeader("Content-Length", String(buf.length));
+    res.setHeader("Cache-Control", "public, s-maxage=86400, stale-while-revalidate=604800");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.end(buf);
+  } catch (e4) {
+    res.statusCode = 502;
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.end("No se pudo descargar la imagen desde Instagram.");
+  }
 };
 
 function instagramUrlLooksLikePlaceholder(input) {
