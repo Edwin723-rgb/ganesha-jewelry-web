@@ -43,8 +43,11 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  var ua =
+  /** Escritorio: Instagram devuelve HTML “vacío” (solo bundles JS) sin URLs scontent en /embed/. La app móvil sí recibe img src en el HTML. */
+  var uaDesktop =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36";
+  var uaInstagramAndroid =
+    "Instagram 275.0.0.27.98 Android (31/12; 440dpi; 1080x2274; samsung; SM-G991B; o1s; exynos2100; es_ES; 458229237)";
 
   var embedPlainUrl = normalized.replace(/\/+$/, "") + "/embed/";
   var htmlEmbed = "";
@@ -52,7 +55,7 @@ module.exports = async function handler(req, res) {
     var rEmb = await fetch(embedPlainUrl, {
       redirect: "follow",
       headers: {
-        "User-Agent": ua,
+        "User-Agent": uaInstagramAndroid,
         Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "es-MX,es;q=0.9,en;q=0.8",
         Referer: "https://www.instagram.com/",
@@ -71,7 +74,7 @@ module.exports = async function handler(req, res) {
       var rMain = await fetch(normalized, {
         redirect: "follow",
         headers: {
-          "User-Agent": ua,
+          "User-Agent": uaDesktop,
           Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
           "Accept-Language": "es-MX,es;q=0.9,en;q=0.8",
         },
