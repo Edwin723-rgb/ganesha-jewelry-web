@@ -2424,12 +2424,25 @@
         ];
       }
 
+      function instagramShortcodeLooksInvalid(code) {
+        var s = String(code || "").trim();
+        if (!s) return true;
+        try {
+          s = decodeURIComponent(s);
+        } catch (e) {}
+        var lower = s.toLowerCase();
+        if (/[{}]/.test(s)) return true;
+        if (lower === "codigo" || lower === "code") return true;
+        return !/^[a-z0-9_-]+$/i.test(s);
+      }
+
       /** Enlaces de post Instagram → mismo sitio /api/instagram-image (Vercel). Pegar en Sheet con ?img_index=2 si es carrusel. */
       function instagramPostUrlToProxy(raw) {
         var u = String(raw || "").trim();
         if (!u || u.indexOf("instagram.com") === -1) return "";
         var pm = u.match(/instagram\.com\/(p|reel|tv)\/([^/?#\s]+)/i);
         if (!pm) return "";
+        if (instagramShortcodeLooksInvalid(pm[2])) return "";
         var imgM = u.match(/[?&#]img_index=(\d+)/i);
         var imgIndex = imgM ? imgM[1] : "1";
         var canonical = "https://www.instagram.com/" + pm[1].toLowerCase() + "/" + pm[2] + "/";
@@ -2444,6 +2457,8 @@
       function normalizeMediaImageUrl(raw) {
         var u = String(raw || "").trim();
         if (!u) return "";
+        var igPm = u.match(/instagram\.com\/(p|reel|tv)\/([^/?#\s]+)/i);
+        if (igPm && instagramShortcodeLooksInvalid(igPm[2])) return "";
         var ig = instagramPostUrlToProxy(u);
         if (ig) return ig;
         if (u.indexOf("drive.google.com") !== -1 || u.indexOf("drive.usercontent.google.com") !== -1) {

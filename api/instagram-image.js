@@ -35,7 +35,11 @@ module.exports = async function handler(req, res) {
   if (!normalized) {
     res.statusCode = 400;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.end("URL no válida: usa un post instagram.com/p/… , /reel/… o /tv/…");
+    var hint =
+      instagramUrlLooksLikePlaceholder(rawUrl)
+        ? " Copia el enlace REAL del post (barra de direcciones), no un ejemplo con {codigo} ni texto inventado."
+        : "";
+    res.end("URL no válida: usa instagram.com/p/CÓDIGO con el código que ves en la URL del post al abrirlo en el navegador." + hint);
     return;
   }
 
@@ -102,6 +106,30 @@ module.exports = async function handler(req, res) {
   res.end();
 };
 
+function instagramUrlLooksLikePlaceholder(input) {
+  var s = String(input || "").toLowerCase();
+  return (
+    s.indexOf("%7b") !== -1 ||
+    s.indexOf("{codigo}") !== -1 ||
+    s.indexOf("{code}") !== -1 ||
+    /\/p\/\{/.test(s)
+  );
+}
+
+function isInvalidInstagramShortcode(code) {
+  var s = String(code || "").trim();
+  if (!s) return true;
+  try {
+    s = decodeURIComponent(s);
+  } catch (e1) {}
+  var lower = s.toLowerCase();
+  if (/[{}]/.test(s)) return true;
+  if (lower === "codigo" || lower === "code" || lower === "shortcode" || lower === "tu_codigo") return true;
+  // Shortcodes reales son alfanuméricos + guiones (ej. CyMHH0dvHNf)
+  if (!/^[a-z0-9_-]+$/i.test(s)) return true;
+  return false;
+}
+
 function normalizeInstagramPostUrl(input) {
   try {
     var u = new URL(input);
@@ -109,6 +137,7 @@ function normalizeInstagramPostUrl(input) {
     var path = u.pathname.replace(/\/+$/, "");
     var m = path.match(/^\/(p|reel|tv)\/([^/]+)/i);
     if (!m) return null;
+    if (isInvalidInstagramShortcode(m[2])) return null;
     return "https://www.instagram.com/" + m[1].toLowerCase() + "/" + m[2] + "/";
   } catch (e) {
     return null;

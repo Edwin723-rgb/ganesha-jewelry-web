@@ -68,6 +68,8 @@ PASO A PASO EN EXCEL (Windows)
 
    Instagram (opcional):
    - hero_1, hero_2, foto, etc. pueden llevar la URL del post con ?img_index= para elegir la foto del carrusel.
+   - Copia el enlace desde la barra del navegador cuando el post está ABIERTO (ej. …/p/CyMHH0dvHNf/?img_index=2).
+     NO uses texto de ejemplo tipo {codigo} ni inventes la URL: solo vale el código real que muestra Instagram.
 
    Imágenes y Google Drive:
    - Lo más fiable es la misma regla que «foto» de productos: un enlace que al abrirlo en el navegador
