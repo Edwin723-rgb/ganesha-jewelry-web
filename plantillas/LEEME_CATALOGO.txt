@@ -66,7 +66,7 @@ PASO A PASO EN EXCEL (Windows)
 
 6. BANNERS DEL INICIO (hero), BANNERS DE /collections/… (misma hoja «Medios»)
    La hoja de PRODUCTOS solo alimenta las tarjetas del catálogo. Para el carrusel grande del inicio,
-   las cinco casillas de categorías en la página principal y el fondo del banner de cada colección,
+   las cuatro casillas de categorías en la página principal (Aretes, Collares, Pulseras, Anillos) y el fondo del banner de cada colección,
    usa una SEGUNDA pestaña en el mismo Google Sheet (o otro archivo) con la plantilla
    «plantillas/ganesha_medios_plantilla.csv»:
 

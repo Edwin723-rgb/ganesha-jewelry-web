@@ -353,9 +353,10 @@
       padding-bottom: 6px;
       border-bottom: 2px solid rgba(255, 255, 255, 0.75);
     }
+    /* 4 categorías: Aretes (columna alta izq.) | Collares (centro) | Pulseras + Anillos (der.) */
     .cat-mosaic-tile--aretes {
       grid-column: 1;
-      grid-row: 1;
+      grid-row: 1 / span 2;
       background-image: linear-gradient(145deg, #c9bfb0 0%, #7d7268 100%);
     }
     .cat-mosaic-tile--collares {
@@ -367,11 +368,6 @@
       grid-column: 3;
       grid-row: 1;
       background-image: linear-gradient(145deg, #d4c4b0 0%, #857566 100%);
-    }
-    .cat-mosaic-tile--gargantillas {
-      grid-column: 1;
-      grid-row: 2;
-      background-image: linear-gradient(145deg, #a89888 0%, #5c524a 100%);
     }
     .cat-mosaic-tile--anillos {
       grid-column: 3;
@@ -389,10 +385,16 @@
         grid-row: auto;
         min-height: 200px;
       }
-      .cat-mosaic-tile--aretes { grid-column: 1; grid-row: auto; }
+      .cat-mosaic-tile--aretes {
+        grid-column: 1;
+        grid-row: auto;
+      }
       .cat-mosaic-tile--pulseras { grid-column: 2; grid-row: auto; }
-      .cat-mosaic-tile--gargantillas { grid-column: 1; grid-row: auto; }
-      .cat-mosaic-tile--anillos { grid-column: 2; grid-row: auto; }
+      .cat-mosaic-tile--anillos {
+        grid-column: 1 / -1;
+        grid-row: auto;
+        min-height: 150px;
+      }
     }
     .cta-strip {
       background: var(--stone);
@@ -1412,7 +1414,6 @@
         <a href="/collections/aretes" class="cat-mosaic-tile cat-mosaic-tile--aretes"><span>Aretes</span></a>
         <a href="/collections/collares" class="cat-mosaic-tile cat-mosaic-tile--collares cat-mosaic-tile--tall"><span>Collares</span></a>
         <a href="/collections/pulseras" class="cat-mosaic-tile cat-mosaic-tile--pulseras"><span>Pulseras</span></a>
-        <a href="/collections/collares" class="cat-mosaic-tile cat-mosaic-tile--gargantillas"><span>Gargantillas</span></a>
         <a href="/collections/anillos" class="cat-mosaic-tile cat-mosaic-tile--anillos"><span>Anillos</span></a>
       </div>
     </section>
@@ -1759,14 +1760,13 @@
     window.GANESHA_MEDIA_CSV =
       "https://docs.google.com/spreadsheets/d/1PuOslKBK9Lep5olhKRYo831IeOdQnamEpdc4X_VkItE/gviz/tq?tqx=out:csv&gid=1126786697";
     /*
-     * Portadas del mosaico de inicio (Aretes, Collares, Pulseras, Gargantillas, Anillos).
+     * Portadas del mosaico de inicio (Aretes, Collares, Pulseras, Anillos).
      * Pon aquí URLs directas (https) o enlaces de Drive/Instagram; se fusionan con la hoja «Medios» si existe.
      */
     window.GANESHA_HOME_COVERS = {
       cover_aretes: "",
       cover_collares: "",
       cover_pulseras: "",
-      cover_gargantillas: "",
       cover_anillos: ""
     };
     window.__ganeshaSiteMedia = {};
@@ -2377,8 +2377,7 @@
           n === "cover_aretes" ||
           n === "cover_anillos" ||
           n === "cover_collares" ||
-          n === "cover_pulseras" ||
-          n === "cover_gargantillas"
+          n === "cover_pulseras"
         )
           return n;
         return "";
@@ -2536,7 +2535,6 @@
           cover_aretes: ".cat-mosaic-tile--aretes",
           cover_collares: ".cat-mosaic-tile--collares",
           cover_pulseras: ".cat-mosaic-tile--pulseras",
-          cover_gargantillas: ".cat-mosaic-tile--gargantillas",
           cover_anillos: ".cat-mosaic-tile--anillos"
         };
         Object.keys(map).forEach(function (key) {
