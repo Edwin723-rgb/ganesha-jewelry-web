@@ -1366,7 +1366,7 @@
           <img src="/ganesha_assets/hero-1.jpg" alt="" width="1080" height="1080" fetchpriority="high" decoding="async">
         </div>
         <div class="hero-slide">
-          <img src="/ganesha_assets/hero-2.jpg" alt="" width="1080" height="1080" loading="lazy" decoding="async">
+          <img src="https://drive.google.com/thumbnail?id=1Hx0nQVq2qWPvxj0s5HzwF_N3lijDqqp_&amp;sz=w2048" alt="" width="1080" height="1080" loading="lazy" decoding="async" referrerpolicy="no-referrer">
         </div>
         <div class="hero-slide">
           <img src="/ganesha_assets/hero-3.jpg" alt="" width="1080" height="1080" loading="lazy" decoding="async">
@@ -1797,6 +1797,9 @@
         });
         heroRoot.addEventListener("mouseenter", function () { if (heroTimer) clearInterval(heroTimer); });
         heroRoot.addEventListener("mouseleave", heroStart);
+        heroRoot.querySelectorAll(".hero-slide img").forEach(function (img) {
+          driveImageAttachFallback(img);
+        });
         heroStart();
       }
 
@@ -2405,17 +2408,43 @@
         var m = u.match(/\/file\/d\/([^/]+)/);
         if (m) return m[1];
         var m2 = u.match(/[?&]id=([^&]+)/);
-        return m2 ? m2[1] : "";
+        return m2 ? decodeURIComponent(m2[1]) : "";
+      }
+
+      /** URLs que suelen funcionar mejor que /uc?export=view para <img> y fondos CSS. */
+      function googleDriveImageUrlCandidates(id) {
+        if (!id) return [];
+        var enc = encodeURIComponent(id);
+        return [
+          "https://drive.google.com/thumbnail?id=" + enc + "&sz=w2048",
+          "https://drive.google.com/uc?export=view&id=" + enc,
+          "https://drive.usercontent.google.com/download?id=" + enc + "&export=view"
+        ];
       }
 
       function normalizeMediaImageUrl(raw) {
         var u = String(raw || "").trim();
         if (!u) return "";
-        if (u.indexOf("drive.google.com") !== -1) {
+        if (u.indexOf("drive.google.com") !== -1 || u.indexOf("drive.usercontent.google.com") !== -1) {
           var id = driveFileIdFromUrl(u);
-          if (id) return "https://drive.google.com/uc?export=view&id=" + id;
+          if (id) return googleDriveImageUrlCandidates(id)[0];
         }
         return u;
+      }
+
+      function driveImageAttachFallback(img) {
+        if (!img) return;
+        var id = driveFileIdFromUrl(img.src || "");
+        if (!id) return;
+        img.referrerPolicy = "no-referrer";
+        var urls = googleDriveImageUrlCandidates(id);
+        img.onerror = function () {
+          var i = img._ganeshaDriveI | 0;
+          i++;
+          img._ganeshaDriveI = i;
+          if (i < urls.length) img.src = urls[i];
+          else img.onerror = null;
+        };
       }
 
       function cssImageUrl(u) {
@@ -2430,7 +2459,12 @@
         root.querySelectorAll(".hero-slide img").forEach(function (img, i) {
           var key = "hero_" + (i + 1);
           var nu = normalizeMediaImageUrl(media[key]);
-          if (nu) img.src = nu;
+          if (nu) {
+            img.onerror = null;
+            img._ganeshaDriveI = 0;
+            img.src = nu;
+            driveImageAttachFallback(img);
+          }
         });
       }
 
@@ -2532,7 +2566,7 @@
 
       function buildCatalogCard(raw) {
         var nombre = String(raw.nombre || "").trim();
-        var foto = String(raw.foto || "").trim();
+        var foto = normalizeMediaImageUrl(String(raw.foto || "").trim());
         if (!nombre || !foto) return null;
         var cat = normCat(raw.categoria);
         if (!cat) return null;
@@ -2541,7 +2575,7 @@
         var priceAttr = priceAttrFromNum(n);
         var desc = String(raw.descripcion || "");
         var tallas = String(raw.tallas || "").trim();
-        var fotoModelo = String(raw.foto_modelo || "").trim();
+        var fotoModelo = normalizeMediaImageUrl(String(raw.foto_modelo || "").trim());
         var hoverSrc = fotoModelo || foto;
 
         var btn = document.createElement("button");
@@ -2574,6 +2608,9 @@
         imgHover.width = 600;
         imgHover.height = 600;
         imgHover.setAttribute("aria-hidden", "true");
+
+        driveImageAttachFallback(imgMain);
+        driveImageAttachFallback(imgHover);
 
         figure.appendChild(imgMain);
         figure.appendChild(imgHover);

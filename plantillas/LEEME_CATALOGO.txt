@@ -63,9 +63,10 @@ PASO A PASO EN EXCEL (Windows)
    Imágenes y Google Drive:
    - Lo más fiable es la misma regla que «foto» de productos: un enlace que al abrirlo en el navegador
      muestre SOLO la imagen (PNG/JPG/WebP), por ejemplo tu web, Shopify CDN, ImgBB «direct link», etc.
-   - Si pegas un enlace «Abrir archivo» de Drive (…/file/d/ID/view…), la página intenta convertirlo a
-     formato de vista; a veces Drive bloquea o va lento. Si una imagen no carga, sube la foto a un host
-     con URL directa o haz el archivo de Drive «Cualquiera con el enlace» y prueba de nuevo.
+   - Si pegas un enlace de Drive (…/file/d/ID/view… o ?id=…), la web convierte a miniatura de alta
+     ancho (thumbnail) y, si falla, prueba otras URLs de Google hasta que una cargue. El archivo debe
+     estar en «Cualquiera con el enlace» como mínimo lector. Si sigue sin verse, usa un host con enlace
+     directo a la imagen.
 
 6. SI ALGO NO APARECE EN LA WEB
    Revisa en este orden: stock = sí | categoría exacta | URL de foto que cargue | fila 1 con nombre y foto.
