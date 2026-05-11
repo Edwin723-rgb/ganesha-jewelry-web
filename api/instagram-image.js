@@ -250,6 +250,12 @@ function isBadInstagramCarouselCdnUrl(u) {
   return false;
 }
 
+/** Las fotos del carrusel llevan este tag en efg; conviene priorizarlas sobre thumbs sin efg o variantes. */
+function hasRegularPhotoEfg(u) {
+  var j = decodeInstagramEfgJson(u);
+  return j.indexOf("regular_photo") !== -1;
+}
+
 function mediaKeyFromPostUrl(u) {
   var m = u.match(/\/(\d{6,}_\d+_\d+_n\.(?:jpg|jpeg|webp))/i);
   return m ? m[1] : u;
@@ -263,7 +269,16 @@ function urlQualityScore(u) {
   return 10000;
 }
 
-/** Orden de carrusel desde /embed/ (solo URLs “foto”; sin covers de vídeo ni avatar). */
+/** Mayor = mejor candidato para una misma pieza de media (foto real > miniatura sin efg). */
+function carouselCandidateScore(u) {
+  return urlQualityScore(u) + (hasRegularPhotoEfg(u) ? 1e12 : 0);
+}
+
+/**
+ * Orden del carrusel desde /embed/: solo URLs “foto”.
+ * El orden en el HTML mezcla thumbs y portadas; ponemos primero las que tienen efg regular_photo
+ * (orden de aparición) y la mejor resolución por media id — así img_index=1 es la 1ª foto del carrusel.
+ */
 function extractCarouselFromEmbed(html) {
   var urls = collectScontentUrlsFromHtml(html);
   urls = urls.filter(function (u) {
@@ -273,18 +288,28 @@ function extractCarouselFromEmbed(html) {
   var bestByKey = {};
   urls.forEach(function (u) {
     var k = mediaKeyFromPostUrl(u);
-    if (!bestByKey[k] || urlQualityScore(u) > urlQualityScore(bestByKey[k])) bestByKey[k] = u;
+    if (!bestByKey[k] || carouselCandidateScore(u) > carouselCandidateScore(bestByKey[k])) bestByKey[k] = u;
   });
 
-  var order = [];
+  var orderKeys = [];
   var seen = {};
+  urls.forEach(function (u) {
+    if (!hasRegularPhotoEfg(u)) return;
+    var k = mediaKeyFromPostUrl(u);
+    if (seen[k]) return;
+    seen[k] = true;
+    orderKeys.push(k);
+  });
   urls.forEach(function (u) {
     var k = mediaKeyFromPostUrl(u);
     if (seen[k]) return;
     seen[k] = true;
-    order.push(bestByKey[k]);
+    orderKeys.push(k);
   });
-  return order;
+
+  return orderKeys.map(function (k) {
+    return bestByKey[k];
+  });
 }
 
 function extractInstagramLegacy(html) {
@@ -294,6 +319,7 @@ function extractInstagramLegacy(html) {
     var u = decodeIgUrlChunk(raw);
     if (!/^https?:\/\//i.test(u)) return;
     if (u.indexOf("cdninstagram.com") === -1 && u.indexOf("fbcdn.net") === -1) return;
+    if (isBadInstagramCarouselCdnUrl(u)) return;
     if (ordered.indexOf(u) !== -1) return;
     ordered.push(u);
   }
