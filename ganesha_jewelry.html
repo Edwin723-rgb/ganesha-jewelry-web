@@ -2424,9 +2424,28 @@
         ];
       }
 
+      /** Enlaces de post Instagram → mismo sitio /api/instagram-image (Vercel). Pegar en Sheet con ?img_index=2 si es carrusel. */
+      function instagramPostUrlToProxy(raw) {
+        var u = String(raw || "").trim();
+        if (!u || u.indexOf("instagram.com") === -1) return "";
+        var pm = u.match(/instagram\.com\/(p|reel|tv)\/([^/?#\s]+)/i);
+        if (!pm) return "";
+        var imgM = u.match(/[?&#]img_index=(\d+)/i);
+        var imgIndex = imgM ? imgM[1] : "1";
+        var canonical = "https://www.instagram.com/" + pm[1].toLowerCase() + "/" + pm[2] + "/";
+        return (
+          "/api/instagram-image?img_index=" +
+          encodeURIComponent(imgIndex) +
+          "&url=" +
+          encodeURIComponent(canonical)
+        );
+      }
+
       function normalizeMediaImageUrl(raw) {
         var u = String(raw || "").trim();
         if (!u) return "";
+        var ig = instagramPostUrlToProxy(u);
+        if (ig) return ig;
         if (u.indexOf("drive.google.com") !== -1 || u.indexOf("drive.usercontent.google.com") !== -1) {
           var id = driveFileIdFromUrl(u);
           if (id) return googleDriveImageUrlCandidates(id)[0];
@@ -2436,7 +2455,9 @@
 
       function driveImageAttachFallback(img) {
         if (!img) return;
-        var id = driveFileIdFromUrl(img.src || "");
+        var src = img.src || "";
+        if (src.indexOf("/api/instagram-image") !== -1) return;
+        var id = driveFileIdFromUrl(src);
         if (!id) return;
         img.referrerPolicy = "no-referrer";
         var urls = googleDriveImageUrlCandidates(id);

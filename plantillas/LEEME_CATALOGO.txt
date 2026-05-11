@@ -23,7 +23,11 @@ PASO A PASO EN EXCEL (Windows)
 2. COLUMNAS QUE USA LA WEB (el orden puede cambiar si los títulos se reconocen)
    OBLIGATORIAS para que una fila aparezca:
    - nombre     : Nombre visible del producto.
-   - foto       : URL pública HTTPS de la imagen principal (debe abrir la imagen en el navegador).
+   - foto       : URL de imagen directa (HTTPS), enlace de Drive, o ENLACE DEL POST DE INSTAGRAM con el
+                  mismo formato que copias del navegador, por ejemplo:
+                  https://www.instagram.com/p/CyMHH0dvHNf/?img_index=1
+                  La segunda foto de un carrusel: …?img_index=2  (solo en el sitio desplegado en Vercel;
+                  usa la función /api/instagram-image). Si Instagram oculta el carrusel, sube esa foto a Drive.
    - categoria  : Solo una de estas CUATRO textos:
                    anillos | collares | pulseras | aretes
    - stock      : Para que se muestre en la web usa: sí | yes | 1 | true
@@ -61,6 +65,9 @@ PASO A PASO EN EXCEL (Windows)
 
    En index.html configura la exportación CSV de esa pestaña:
      window.GANESHA_MEDIA_CSV = "https://docs.google.com/spreadsheets/d/TU_ID/gviz/tq?tqx=out:csv&gid=TU_GID";
+
+   Instagram (opcional):
+   - hero_1, hero_2, foto, etc. pueden llevar la URL del post con ?img_index= para elegir la foto del carrusel.
 
    Imágenes y Google Drive:
    - Lo más fiable es la misma regla que «foto» de productos: un enlace que al abrirlo en el navegador
