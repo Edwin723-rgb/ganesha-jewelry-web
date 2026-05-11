@@ -1755,8 +1755,9 @@
     /* Enlace de tu Sheet (edición); también válido: …/gviz/tq?tqx=out:csv&gid=… */
     window.GANESHA_SHEET_CSV =
       "https://docs.google.com/spreadsheets/d/1PuOslKBK9Lep5olhKRYo831IeOdQnamEpdc4X_VkItE/edit?gid=626003925#gid=626003925";
-    /* Opcional: segunda pestaña del mismo Sheet (gviz CSV) — plantillas/ganesha_medios_plantilla.csv */
-    window.GANESHA_MEDIA_CSV = "";
+    /* Pestaña «Medios» del mismo libro (banners, carrusel, portadas del mosaico) */
+    window.GANESHA_MEDIA_CSV =
+      "https://docs.google.com/spreadsheets/d/1PuOslKBK9Lep5olhKRYo831IeOdQnamEpdc4X_VkItE/gviz/tq?tqx=out:csv&gid=1126786697";
     /*
      * Portadas del mosaico de inicio (Aretes, Collares, Pulseras, Gargantillas, Anillos).
      * Pon aquí URLs directas (https) o enlaces de Drive/Instagram; se fusionan con la hoja «Medios» si existe.
@@ -2384,15 +2385,27 @@
       }
 
       function findMediaHeaderRowIndex(matrix) {
+        var bestR = -1;
+        var bestCount = 0;
         for (var r = 0; r < matrix.length; r++) {
           var row = matrix[r];
           var count = 0;
           for (var c = 0; c < row.length; c++) {
             if (canonicalMediaFieldKey(normalizeHeader(row[c]))) count++;
           }
-          if (count >= 1) return r;
+          if (count >= 2 && count > bestCount) {
+            bestCount = count;
+            bestR = r;
+          }
         }
-        return -1;
+        return bestR;
+      }
+
+      /** Solo URLs (http/https); ignora filas de notas e instrucciones en la hoja Medios. */
+      function isLikelyMediaUrl(val) {
+        var s = String(val || "").trim();
+        if (!s) return false;
+        return /^https?:\/\//i.test(s);
       }
 
       function mediaObjectsFromMatrix(matrix) {
@@ -2410,7 +2423,7 @@
             var k = colToKey[ci];
             if (!k) continue;
             var val = cells[ci] != null ? String(cells[ci]).trim() : "";
-            if (val) merged[k] = val;
+            if (val && isLikelyMediaUrl(val)) merged[k] = val;
           }
         }
         return merged;
