@@ -72,11 +72,11 @@
       border: 0;
     }
 
-    /* ── LOGO (más compacto, tipo boutique — referencia estructura minimalista) ── */
+    /* ── LOGO (centrado en cabecera tipo boutique móvil) ── */
     .logo-link {
       display: flex;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       text-decoration: none;
       line-height: 0;
       background: transparent;
@@ -84,9 +84,9 @@
     .logo-img {
       height: clamp(36px, 4.5vw, 48px);
       width: auto;
-      max-width: min(200px, 42vw);
+      max-width: min(200px, 46vw);
       object-fit: contain;
-      object-position: left center;
+      object-position: center center;
       display: block;
       background: transparent;
     }
@@ -107,7 +107,7 @@
       }
     }
 
-    /* ── HEADER (logo izquierda · nav centrado · íconos derecha) ── */
+    /* ── HEADER (menú izq · logo centro · búsqueda + bolsa der — referencia Marla) ── */
     .site-header {
       position: sticky;
       top: 0;
@@ -119,27 +119,34 @@
     }
     .header-inner {
       display: grid;
-      grid-template-columns: auto 1fr auto;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      gap: clamp(0.75rem, 2vw, 1.5rem);
+      gap: clamp(0.5rem, 2vw, 1.25rem);
       min-height: 56px;
       padding: 0.45rem 0;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: clamp(0.5rem, 1.5vw, 1rem);
+      min-width: 0;
+      z-index: 2;
     }
     .header-brand {
       display: flex;
       align-items: center;
-      justify-self: start;
-      z-index: 2;
+      justify-self: center;
+      z-index: 1;
       flex-shrink: 0;
     }
     .main-nav {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
       gap: clamp(0.35rem, 1.1vw, 0.95rem);
-      justify-self: center;
-      max-width: 100%;
+      max-width: none;
       font-family: var(--display);
     }
     .main-nav a {
@@ -267,25 +274,32 @@
     }
     @media (max-width: 900px) {
       .header-inner {
-        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-columns: auto 1fr auto;
         min-height: 48px;
         padding: 0.35rem 0;
-        column-gap: 0.5rem;
+        column-gap: 0.35rem;
+      }
+      .header-left {
+        grid-column: 1;
       }
       .header-brand {
-        grid-column: 1;
-        justify-self: start;
+        grid-column: 2;
+        justify-self: center;
       }
-      .main-nav { display: none !important; }
+      .main-nav {
+        display: none !important;
+      }
       .header-util {
         grid-column: 3;
         justify-self: end;
         max-width: 100%;
       }
       .header-search-form {
-        max-width: min(200px, 46vw);
+        max-width: min(140px, 32vw);
       }
-      .menu-toggle { display: inline-flex !important; }
+      .menu-toggle {
+        display: inline-flex !important;
+      }
     }
     .mobile-drawer {
       display: none;
@@ -724,6 +738,65 @@
     }
     @media (prefers-reduced-motion: reduce) {
       .hero-slide { transition: none; }
+    }
+    .hero-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 5;
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(15, 13, 11, 0.12);
+      transition: background 0.2s, transform 0.2s;
+    }
+    .hero-arrow:hover {
+      background: var(--white);
+      transform: translateY(-50%) scale(1.04);
+    }
+    .hero-arrow--prev { left: clamp(0.75rem, 3vw, 1.5rem); }
+    .hero-arrow--next { right: clamp(0.75rem, 3vw, 1.5rem); }
+    .hero-arrow svg { width: 20px; height: 20px; }
+    @media (max-width: 600px) {
+      .hero-arrow {
+        width: 38px;
+        height: 38px;
+      }
+      .hero-arrow svg { width: 18px; height: 18px; }
+    }
+    .hero-legend {
+      position: absolute;
+      left: clamp(1rem, 4vw, 2.5rem);
+      bottom: clamp(4.25rem, 12vh, 6rem);
+      z-index: 5;
+      max-width: min(420px, 88vw);
+      text-align: left;
+      pointer-events: none;
+    }
+    .hero-legend-tag {
+      margin: 0 0 0.35rem;
+      font-family: var(--display);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.92);
+    }
+    .hero-legend-line {
+      margin: 0;
+      font-family: var(--sans);
+      font-size: clamp(0.95rem, 2.4vw, 1.15rem);
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.35;
+      text-shadow: 0 2px 14px rgba(15, 13, 11, 0.45);
     }
 
     /* texto encima de todo */
@@ -1267,6 +1340,353 @@
     .social-links a { font-size:0.72rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:rgba(244,240,232,0.45); }
     .social-links a:hover { color:var(--cream); }
 
+    /* ── Home: novedades (carril horizontal) ── */
+    .home-rail {
+      padding: clamp(1.75rem, 4vw, 2.75rem) 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--border2);
+    }
+    .home-rail__head {
+      width: min(1180px, calc(100% - 48px));
+      margin: 0 auto 1.1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .home-rail__head h2 {
+      margin: 0;
+      font-family: var(--sans);
+      font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .home-rail__head p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+      max-width: 28rem;
+    }
+    .home-rail__track {
+      display: flex;
+      gap: 0.85rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding: 0.25rem calc(max(0px, (100% - 1180px) / 2) + 24px) 0.75rem;
+      scrollbar-width: thin;
+    }
+    .home-rail__track::-webkit-scrollbar {
+      height: 6px;
+    }
+    .home-rail__track::-webkit-scrollbar-thumb {
+      background: rgba(15, 13, 11, 0.15);
+      border-radius: 99px;
+    }
+    .home-nov-card {
+      flex: 0 0 clamp(150px, 42vw, 200px);
+      scroll-snap-align: start;
+      border: none;
+      padding: 0;
+      background: var(--off-white);
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      box-shadow: var(--shadow-md);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .home-nov-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
+    .home-nov-card img {
+      aspect-ratio: 1;
+      width: 100%;
+      object-fit: cover;
+    }
+    .home-nov-card__body {
+      padding: 0.65rem 0.75rem 0.85rem;
+    }
+    .home-nov-card__body h3 {
+      margin: 0 0 0.25rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1.25;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .home-nov-card__body p {
+      margin: 0;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .home-nov-empty {
+      padding: 1rem 24px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* ── Home: categorías en carril (tarjetas verticales) ── */
+    .home-collection-rail .home-rail__track {
+      gap: 1rem;
+    }
+    .home-cat-card {
+      flex: 0 0 clamp(200px, 58vw, 280px);
+      scroll-snap-align: start;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      min-height: clamp(320px, 72vw, 420px);
+      border-radius: 8px;
+      overflow: hidden;
+      text-decoration: none;
+      color: #fff;
+      box-shadow: var(--shadow-md);
+    }
+    .home-cat-card__bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.45s ease;
+    }
+    .home-cat-card:hover .home-cat-card__bg {
+      transform: scale(1.05);
+    }
+    .home-cat-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 35%, rgba(15, 13, 11, 0.72));
+      z-index: 1;
+      pointer-events: none;
+    }
+    .home-cat-card__inner {
+      position: relative;
+      z-index: 2;
+      padding: 1.25rem 1.1rem 1.35rem;
+    }
+    .home-cat-card__inner h3 {
+      margin: 0 0 0.85rem;
+      font-family: var(--sans);
+      font-size: clamp(1.15rem, 3.2vw, 1.45rem);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .home-cat-card__btn {
+      display: inline-block;
+      padding: 0.55rem 1.1rem;
+      font-family: var(--display);
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      background: var(--white);
+      color: var(--ink);
+      border-radius: 3px;
+    }
+
+    /* ── Home: bloque materiales / lifestyle ── */
+    .home-promo-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: min(520px, 88vh);
+      background: var(--white);
+    }
+    .home-promo-split__media {
+      min-height: 280px;
+      background: var(--stone) center/cover no-repeat;
+      background-image: linear-gradient(135deg, #c4bdb2 0%, #8a8278 100%);
+    }
+    .home-promo-split__media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      min-height: 280px;
+    }
+    .home-promo-split__copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 3.5rem);
+    }
+    .home-promo-split__copy h2 {
+      margin: 0 0 1rem;
+      font-family: var(--sans);
+      font-size: clamp(1.35rem, 3.2vw, 2rem);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+    .home-promo-split__copy p {
+      margin: 0 0 1.5rem;
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 34rem;
+    }
+    @media (max-width: 820px) {
+      .home-promo-split {
+        grid-template-columns: 1fr;
+      }
+      .home-promo-split__media {
+        min-height: 220px;
+        order: -1;
+      }
+    }
+
+    /* ── Home: historia con foto + tarjeta ── */
+    .home-story-visual {
+      position: relative;
+      padding: clamp(2.5rem, 6vw, 4rem) 0 clamp(3rem, 8vw, 5rem);
+      background: var(--page-bg);
+    }
+    .home-story-visual__photo {
+      width: min(1180px, calc(100% - 48px));
+      margin: 0 auto;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      min-height: min(380px, 55vw);
+      background: var(--stone) center/cover;
+      background-image: linear-gradient(120deg, #d8d2c8, #a39a8e);
+    }
+    .home-story-visual__photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      min-height: min(380px, 55vw);
+      display: block;
+    }
+    .home-story-visual__card {
+      position: relative;
+      width: min(520px, calc(100% - 40px));
+      margin: -3.5rem auto 0;
+      z-index: 2;
+      background: var(--white);
+      padding: clamp(1.5rem, 4vw, 2.25rem);
+      border-radius: 6px;
+      box-shadow: var(--shadow-md);
+      text-align: center;
+    }
+    .home-story-visual__card h2 {
+      margin: 0 0 0.85rem;
+      font-family: var(--sans);
+      font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .home-story-visual__card p {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    /* ── Home: Instagram + testimonios ── */
+    .home-insta-block {
+      padding: clamp(2.25rem, 5vw, 3.5rem) 0;
+      background: var(--white);
+      border-top: 1px solid var(--border2);
+    }
+    .home-insta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      max-width: 420px;
+      margin: 0 auto 1.75rem;
+    }
+    .home-insta-grid a {
+      aspect-ratio: 1;
+      background: var(--stone) center/cover;
+      border-radius: 4px;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .home-insta-grid a:hover {
+      opacity: 0.88;
+    }
+    .home-insta-grid img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .home-insta-cta {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .home-insta-cta p {
+      margin: 0 0 0.75rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .home-testi {
+      width: min(640px, calc(100% - 48px));
+      margin: 0 auto;
+      position: relative;
+    }
+    .home-testi__viewport {
+      overflow: hidden;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--off-white);
+    }
+    .home-testi__track {
+      display: flex;
+      transition: transform 0.45s ease;
+    }
+    .home-testi__slide {
+      flex: 0 0 100%;
+      padding: 1.5rem 1.35rem 1.65rem;
+      box-sizing: border-box;
+    }
+    .home-testi__slide blockquote {
+      margin: 0 0 0.85rem;
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      font-style: italic;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+    .home-testi__slide cite {
+      font-size: 0.72rem;
+      font-style: normal;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .home-testi__nav {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.85rem;
+    }
+    .home-testi__dot {
+      width: 8px;
+      height: 8px;
+      padding: 0;
+      border: none;
+      border-radius: 99px;
+      background: rgba(15, 13, 11, 0.2);
+      cursor: pointer;
+    }
+    .home-testi__dot.active {
+      background: var(--ink);
+    }
+
     /* ── Scroll arriba (estilo referencia) ── */
     .scroll-top-btn {
       position: fixed;
@@ -1315,18 +1735,24 @@
   <!-- HEADER -->
   <header class="site-header">
     <div class="container header-inner">
+      <div class="header-left">
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" id="menu-btn">
+          <span></span><span></span><span></span>
+          <span class="sr-only">Menú</span>
+        </button>
+        <nav class="main-nav" aria-label="Principal">
+          <a href="/">Inicio</a>
+          <a href="/#historia">Conócenos</a>
+          <a href="/collections/all">Comprar</a>
+          <a href="/#highlights">Regalos</a>
+          <a href="https://www.instagram.com/ganesha.mex/" target="_blank" rel="noopener noreferrer">Galería</a>
+        </nav>
+      </div>
       <div class="header-brand">
         <a class="logo-link" href="/" aria-label="Ganesha Jewelry · Inicio">
           <img class="logo-img" src="/ganesha_assets/logo.png" alt="Ganesha Jewelry" width="720" height="240" loading="eager" decoding="async" fetchpriority="high">
         </a>
       </div>
-      <nav class="main-nav" aria-label="Principal">
-        <a href="/">Inicio</a>
-        <a href="/#historia">Conócenos</a>
-        <a href="/collections/all">Comprar</a>
-        <a href="/#highlights">Regalos</a>
-        <a href="https://www.instagram.com/ganesha.mex/" target="_blank" rel="noopener noreferrer">Galería</a>
-      </nav>
       <div class="header-util" aria-label="Acciones">
         <form class="header-search-form" id="header-search-form" role="search" aria-label="Buscar piezas">
           <label class="visually-hidden" for="catalog-search">Buscar piezas</label>
@@ -1339,10 +1765,6 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
           <span class="header-cart-badge" aria-hidden="true">0</span>
         </a>
-        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" id="menu-btn">
-          <span></span><span></span><span></span>
-          <span class="sr-only">Menú</span>
-        </button>
       </div>
     </div>
     <div class="container mobile-drawer" id="mobile-nav">
@@ -1361,18 +1783,28 @@
 
   <main id="inicio" tabindex="-1">
 
-    <!-- HERO: 3 fotos del Instagram @ganesha.mex (archivos locales en /ganesha_assets) -->
+    <!-- HERO: 3 fotos — tendencias / promos (texto por slide) -->
     <section class="hero home-only" aria-labelledby="hero-title" data-hero-carousel>
       <div class="hero-carousel" aria-hidden="true">
-        <div class="hero-slide active">
+        <div class="hero-slide active" data-hero-tag="Tendencias" data-hero-line="Piezas trendy que elevan tu energía y tu look del día a día.">
           <img src="/ganesha_assets/hero-1.jpg" alt="" width="1080" height="1080" fetchpriority="high" decoding="async">
         </div>
-        <div class="hero-slide">
+        <div class="hero-slide" data-hero-tag="Promociones" data-hero-line="Lanzamientos y combos especiales — pregunta por DM o WhatsApp.">
           <img src="https://drive.google.com/thumbnail?id=1Hx0nQVq2qWPvxj0s5HzwF_N3lijDqqp_&amp;sz=w2048" alt="" width="1080" height="1080" loading="lazy" decoding="async" referrerpolicy="no-referrer">
         </div>
-        <div class="hero-slide">
+        <div class="hero-slide" data-hero-tag="Novedades" data-hero-line="Baño de oro 18k y acero inoxidable — resistentes al agua.">
           <img src="/ganesha_assets/hero-3.jpg" alt="" width="1080" height="1080" loading="lazy" decoding="async">
         </div>
+      </div>
+      <button type="button" class="hero-arrow hero-arrow--prev" aria-label="Imagen anterior del hero">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <button type="button" class="hero-arrow hero-arrow--next" aria-label="Imagen siguiente del hero">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+      <div class="hero-legend" aria-live="polite">
+        <p class="hero-legend-tag" id="hero-legend-tag">Tendencias</p>
+        <p class="hero-legend-line" id="hero-legend-line">Piezas trendy que elevan tu energía y tu look del día a día.</p>
       </div>
       <div class="hero-dots" role="tablist" aria-label="Cambiar imagen del hero">
         <button type="button" class="hero-dot active" role="tab" aria-selected="true" aria-label="Foto 1" data-hero-index="0"></button>
@@ -1387,6 +1819,55 @@
           <a class="btn btn-white" href="/collections/all">Ver piezas</a>
           <a class="btn btn-outline-white wa-link" href="#" data-wa-message="¡Hola Ganesha Jewelry! Me interesan sus piezas.">Cotizar por WhatsApp</a>
         </div>
+      </div>
+    </section>
+
+    <!-- NOVEDADES (se rellena al cargar el catálogo desde el Sheet) -->
+    <section class="home-rail home-only" id="novedades" aria-labelledby="novedades-title">
+      <div class="home-rail__head">
+        <h2 id="novedades-title">Novedades</h2>
+        <p>Lo más reciente del catálogo — actualiza tu hoja con la insignia «Nuevo» en las piezas que quieras destacar cada semana.</p>
+      </div>
+      <div class="home-rail__track" id="home-novidades-track" role="list" aria-label="Carrusel de novedades">
+        <p class="home-nov-empty" id="home-novidades-placeholder">Cargando novedades…</p>
+      </div>
+    </section>
+
+    <!-- Categorías en carril (Meet our collection) -->
+    <section class="home-rail home-collection-rail home-only" aria-labelledby="home-cat-rail-title">
+      <div class="home-rail__head">
+        <h2 id="home-cat-rail-title">Explora por categoría</h2>
+        <p>Aretes, pulseras, collares y anillos — desliza para ver todas.</p>
+      </div>
+      <div class="home-rail__track" role="list">
+        <a href="/collections/aretes" class="home-cat-card" data-home-cat="aretes" role="listitem">
+          <span class="home-cat-card__bg" aria-hidden="true" style="background-image:linear-gradient(160deg,#6b5d4a,#3d3429)"></span>
+          <div class="home-cat-card__inner">
+            <h3>Aretes</h3>
+            <span class="home-cat-card__btn">Comprar ahora</span>
+          </div>
+        </a>
+        <a href="/collections/pulseras" class="home-cat-card" data-home-cat="pulseras" role="listitem">
+          <span class="home-cat-card__bg" aria-hidden="true" style="background-image:linear-gradient(160deg,#5a5f52,#2f332c)"></span>
+          <div class="home-cat-card__inner">
+            <h3>Pulseras</h3>
+            <span class="home-cat-card__btn">Comprar ahora</span>
+          </div>
+        </a>
+        <a href="/collections/collares" class="home-cat-card" data-home-cat="collares" role="listitem">
+          <span class="home-cat-card__bg" aria-hidden="true" style="background-image:linear-gradient(160deg,#7a6a5c,#3a322c)"></span>
+          <div class="home-cat-card__inner">
+            <h3>Collares</h3>
+            <span class="home-cat-card__btn">Comprar ahora</span>
+          </div>
+        </a>
+        <a href="/collections/anillos" class="home-cat-card" data-home-cat="anillos" role="listitem">
+          <span class="home-cat-card__bg" aria-hidden="true" style="background-image:linear-gradient(160deg,#5c5648,#2a2822)"></span>
+          <div class="home-cat-card__inner">
+            <h3>Anillos</h3>
+            <span class="home-cat-card__btn">Comprar ahora</span>
+          </div>
+        </a>
       </div>
     </section>
 
@@ -1440,6 +1921,79 @@
         </div>
       </div>
     </div>
+
+    <!-- Materiales / lifestyle -->
+    <section class="home-promo-split home-only" aria-labelledby="home-promo-title">
+      <div class="home-promo-split__media" aria-hidden="true">
+        <img src="/ganesha_assets/hero-3.jpg" alt="" width="900" height="1100" loading="lazy" decoding="async" onerror="this.removeAttribute('src');this.alt='';">
+      </div>
+      <div class="home-promo-split__copy">
+        <h2 id="home-promo-title">¡Báñate, suda, vive!</h2>
+        <p>
+          Diseños pensados para el día a día: baño de oro 18k sobre acero inoxidable, piezas resistentes al agua y al sudor para que no dejes de brillar en la playa, el gym o la oficina. Calidad que se siente y dura.
+        </p>
+        <a class="btn" href="/collections/all">Comprar ahora</a>
+      </div>
+    </section>
+
+    <!-- Historia breve (Conócenos) -->
+    <section class="home-story-visual home-only" id="historia" aria-labelledby="historia-title">
+      <div class="home-story-visual__photo">
+        <img src="/ganesha_assets/hero-1.jpg" alt="" width="1200" height="700" loading="lazy" decoding="async" onerror="this.style.display='none'">
+      </div>
+      <div class="home-story-visual__card">
+        <h2 id="historia-title">Conócenos</h2>
+        <p>
+          Ganesha Jewelry nació en Villahermosa con la idea de ofrecer joyería trendy con buena energía: protección, intención y estilo en cada pieza. Llevamos más de una década acompañando a quienes buscan accesorios waterproof y versátiles, con atención cercana por Instagram y WhatsApp como en una boutique.
+        </p>
+      </div>
+    </section>
+
+    <!-- Instagram + testimonios -->
+    <section class="home-insta-block home-only" id="instagram-reseñas" aria-labelledby="home-insta-heading">
+      <div class="container" style="text-align:center;margin-bottom:1.25rem;">
+        <div class="section-divider" style="margin:0 auto 1rem;"></div>
+        <h2 id="home-insta-heading" style="margin:0;font-family:var(--sans);font-size:clamp(1rem,2vw,1.2rem);font-weight:600;letter-spacing:0.14em;text-transform:uppercase;">@ganesha.mex</h2>
+        <p style="margin:0.5rem 0 0;font-size:0.85rem;color:var(--muted);">Un adelanto de la galería y lo que dicen nuestras clientas.</p>
+      </div>
+      <div class="home-insta-grid" aria-label="Enlaces a publicaciones recientes">
+        <a href="https://www.instagram.com/ganesha.mex/" target="_blank" rel="noopener noreferrer" title="Instagram Ganesha"><img src="/ganesha_assets/hero-1.jpg" alt="" width="200" height="200" loading="lazy" onerror="this.parentElement.style.background='#e5e2dc'"></a>
+        <a href="https://www.instagram.com/ganesha.mex/" target="_blank" rel="noopener noreferrer" title="Instagram Ganesha"><img src="/ganesha_assets/hero-3.jpg" alt="" width="200" height="200" loading="lazy" onerror="this.parentElement.style.background='#dcd8d0'"></a>
+        <a href="https://www.instagram.com/ganesha.mex/" target="_blank" rel="noopener noreferrer" title="Instagram Ganesha"><img src="/ganesha_assets/hero-3.jpg" alt="" width="200" height="200" loading="lazy" onerror="this.parentElement.style.background='#d4cfc6'"></a>
+        <a href="https://www.instagram.com/ganesha.mex/" target="_blank" rel="noopener noreferrer" title="Instagram Ganesha"><img src="/ganesha_assets/hero-1.jpg" alt="" width="200" height="200" loading="lazy" onerror="this.parentElement.style.background='#e0dbd2'"></a>
+        <a href="https://www.instagram.com/ganesha.mex/" target="_blank" rel="noopener noreferrer" title="Instagram Ganesha"><img src="/ganesha_assets/hero-3.jpg" alt="" width="200" height="200" loading="lazy" onerror="this.parentElement.style.background='#e8e4dc'"></a>
+        <a href="https://www.instagram.com/ganesha.mex/" target="_blank" rel="noopener noreferrer" title="Instagram Ganesha"><img src="/ganesha_assets/hero-1.jpg" alt="" width="200" height="200" loading="lazy" onerror="this.parentElement.style.background='#ded9d0'"></a>
+        <a href="https://www.instagram.com/ganesha.mex/" target="_blank" rel="noopener noreferrer" title="Instagram Ganesha"><img src="/ganesha_assets/hero-1.jpg" alt="" width="200" height="200" loading="lazy" onerror="this.parentElement.style.background='#e2ddd4'"></a>
+        <a href="https://www.instagram.com/ganesha.mex/" target="_blank" rel="noopener noreferrer" title="Instagram Ganesha"><img src="/ganesha_assets/hero-3.jpg" alt="" width="200" height="200" loading="lazy" onerror="this.parentElement.style.background='#d8d3ca'"></a>
+      </div>
+      <div class="home-insta-cta">
+        <p>Sigue el día a día de la tienda en Instagram.</p>
+        <a class="btn" href="https://www.instagram.com/ganesha.mex/" target="_blank" rel="noopener noreferrer">Ver perfil</a>
+      </div>
+      <div class="home-testi" data-home-testimonials>
+        <div class="home-testi__viewport">
+          <div class="home-testi__track" id="home-testi-track">
+            <div class="home-testi__slide">
+              <blockquote>«Piezas hermosas y súper resistentes al agua. Ya llevo meses con mis aretes y siguen como nuevos.»</blockquote>
+              <cite>— Valeria, CDMX</cite>
+            </div>
+            <div class="home-testi__slide">
+              <blockquote>«Me encantó la atención por WhatsApp y el envío llegó rapidísimo. La calidad se nota al tacto.»</blockquote>
+              <cite>— Andrea, Villahermosa</cite>
+            </div>
+            <div class="home-testi__slide">
+              <blockquote>«Compro collares y pulseras para regalo y siempre preguntan dónde los conseguí. Good vibes de verdad.»</blockquote>
+              <cite>— Mariana, Monterrey</cite>
+            </div>
+          </div>
+        </div>
+        <div class="home-testi__nav" role="tablist" aria-label="Ver otro comentario">
+          <button type="button" class="home-testi__dot active" data-testi-index="0" aria-label="Comentario 1" aria-selected="true"></button>
+          <button type="button" class="home-testi__dot" data-testi-index="1" aria-label="Comentario 2" aria-selected="false"></button>
+          <button type="button" class="home-testi__dot" data-testi-index="2" aria-label="Comentario 3" aria-selected="false"></button>
+        </div>
+      </div>
+    </section>
 
     <!-- CATÁLOGO -->
     <section class="catalog-section" id="colecciones" aria-labelledby="catalog-title">
@@ -1613,17 +2167,6 @@
       </div>
     </section>
 
-    <!-- HISTORIA / CITA -->
-    <section class="story-section home-only" id="historia" aria-labelledby="historia-title">
-      <div class="story-inner reveal">
-        <div class="section-divider" style="background:var(--olive-lt); margin-bottom:2rem;"></div>
-        <blockquote>
-          «10 años creando más que accesorios. Somos protección, intención y calidad en cada pieza. GANESHA — diseños con alma, piezas que trascienden.»
-        </blockquote>
-        <cite id="historia-title">— @ganesha.mex en Instagram</cite>
-      </div>
-    </section>
-
     <!-- CTA BAND -->
     <div class="cta-band reveal home-only">
       <div class="container" style="max-width:640px;text-align:center;padding:0 24px;">
@@ -1788,6 +2331,8 @@
         var dots = heroRoot.querySelectorAll(".hero-dot");
         var idx = 0;
         var heroTimer = null;
+        var tagEl = heroRoot.querySelector("#hero-legend-tag");
+        var lineEl = heroRoot.querySelector("#hero-legend-line");
         function heroShow(n) {
           idx = (n + slides.length) % slides.length;
           slides.forEach(function (el, j) { el.classList.toggle("active", j === idx); });
@@ -1795,6 +2340,11 @@
             el.classList.toggle("active", j === idx);
             el.setAttribute("aria-selected", j === idx ? "true" : "false");
           });
+          var cur = slides[idx];
+          if (cur && tagEl && lineEl) {
+            tagEl.textContent = cur.getAttribute("data-hero-tag") || "";
+            lineEl.textContent = cur.getAttribute("data-hero-line") || "";
+          }
         }
         function heroNext() { heroShow(idx + 1); }
         function heroStart() {
@@ -1802,6 +2352,20 @@
           if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
             heroTimer = setInterval(heroNext, 5500);
           }
+        }
+        var prevHero = heroRoot.querySelector(".hero-arrow--prev");
+        var nextHero = heroRoot.querySelector(".hero-arrow--next");
+        if (prevHero) {
+          prevHero.addEventListener("click", function () {
+            heroShow(idx - 1);
+            heroStart();
+          });
+        }
+        if (nextHero) {
+          nextHero.addEventListener("click", function () {
+            heroShow(idx + 1);
+            heroStart();
+          });
         }
         dots.forEach(function (dot) {
           dot.addEventListener("click", function () {
@@ -1814,6 +2378,7 @@
         heroRoot.querySelectorAll(".hero-slide img").forEach(function (img) {
           driveImageAttachFallback(img);
         });
+        heroShow(0);
         heroStart();
       }
 
@@ -2549,6 +3114,24 @@
         });
       }
 
+      function applyHomeCatRailCovers(media) {
+        if (!media) return;
+        var map = {
+          cover_aretes: 'a[data-home-cat="aretes"] .home-cat-card__bg',
+          cover_collares: 'a[data-home-cat="collares"] .home-cat-card__bg',
+          cover_pulseras: 'a[data-home-cat="pulseras"] .home-cat-card__bg',
+          cover_anillos: 'a[data-home-cat="anillos"] .home-cat-card__bg'
+        };
+        Object.keys(map).forEach(function (key) {
+          var el = document.querySelector(map[key]);
+          if (!el) return;
+          var nu = normalizeMediaImageUrl(media[key]);
+          if (nu) {
+            el.style.backgroundImage = cssImageUrl(nu);
+          }
+        });
+      }
+
       function mergeSiteMediaWithHomeCovers(base) {
         base = base && typeof base === "object" ? base : {};
         var inl = window.GANESHA_HOME_COVERS || {};
@@ -2565,6 +3148,7 @@
         window.__ganeshaSiteMedia = merged;
         applyHeroCarouselMedia(merged);
         applyHomeCategoryCovers(merged);
+        applyHomeCatRailCovers(merged);
         updatePageShell();
       }
 
@@ -2818,6 +3402,91 @@
         });
       }
 
+      function catalogRowHasValidCard(raw) {
+        var nombre = String(raw.nombre || "").trim();
+        var foto = normalizeMediaImageUrl(String(raw.foto || "").trim());
+        if (!nombre || !foto) return false;
+        return !!normCat(raw.categoria);
+      }
+
+      function renderHomeNovedades(objs) {
+        var track = document.getElementById("home-novidades-track");
+        if (!track) return;
+        track.innerHTML = "";
+        if (!objs || !objs.length) {
+          var p0 = document.createElement("p");
+          p0.className = "home-nov-empty";
+          p0.textContent = "Aún no hay datos del catálogo para mostrar novedades.";
+          track.appendChild(p0);
+          return;
+        }
+        var nuevo = [];
+        var rest = [];
+        objs.forEach(function (raw) {
+          if (!stockVisible(raw.stock)) return;
+          if (!catalogRowHasValidCard(raw)) return;
+          var badge = String(raw.badge || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+          if (badge.indexOf("nuevo") !== -1) nuevo.push(raw);
+          else rest.push(raw);
+        });
+        var picked = [];
+        nuevo.forEach(function (r) {
+          if (picked.length < 5) picked.push(r);
+        });
+        rest.forEach(function (r) {
+          if (picked.length < 5) picked.push(r);
+        });
+        if (picked.length === 0) {
+          var p1 = document.createElement("p");
+          p1.className = "home-nov-empty";
+          p1.textContent = "Cuando haya piezas en stock con foto y categoría válida aparecerán aquí.";
+          track.appendChild(p1);
+          return;
+        }
+        picked.forEach(function (raw) {
+          var nombre = String(raw.nombre || "").trim();
+          var foto = normalizeMediaImageUrl(String(raw.foto || "").trim());
+          var n = parsePriceNum(raw.precio);
+          var priceAttr = priceAttrFromNum(n);
+          var cat = normCat(raw.categoria) || "all";
+          var hover = normalizeMediaImageUrl(String(raw.foto_modelo || "").trim()) || foto;
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "home-nov-card";
+          btn.setAttribute("role", "listitem");
+          btn.setAttribute("data-name", nombre);
+          btn.setAttribute("data-price", priceAttr);
+          btn.setAttribute("data-desc", String(raw.descripcion || ""));
+          btn.setAttribute("data-sizes", String(raw.tallas || "").trim());
+          btn.setAttribute("data-img-main", foto);
+          btn.setAttribute("data-img-hover", hover);
+          btn.setAttribute("data-cat", cat);
+          var img = document.createElement("img");
+          img.src = foto;
+          img.alt = nombre;
+          img.width = 400;
+          img.height = 400;
+          driveImageAttachFallback(img);
+          var body = document.createElement("div");
+          body.className = "home-nov-card__body";
+          var h3 = document.createElement("h3");
+          h3.textContent = nombre;
+          var priceP = document.createElement("p");
+          priceP.textContent = formatPriceLabel(priceAttr);
+          body.appendChild(h3);
+          body.appendChild(priceP);
+          btn.appendChild(img);
+          btn.appendChild(body);
+          btn.addEventListener("click", function () {
+            openModal(btn);
+          });
+          track.appendChild(btn);
+        });
+      }
+
       function loadCatalog() {
         var grid = document.getElementById("catalog-grid");
         if (!grid) return Promise.resolve();
@@ -2828,6 +3497,11 @@
             grid,
             "Configura window.GANESHA_SHEET_CSV con la URL CSV de tu Google Sheet (reemplaza SPREADSHEET_ID y el nombre de la hoja «Productos» si aplica)."
           );
+          var nt0 = document.getElementById("home-novidades-track");
+          if (nt0) {
+            nt0.innerHTML =
+              '<p class="home-nov-empty">Configura el enlace del catálogo en la hoja para ver novedades aquí.</p>';
+          }
           return Promise.resolve();
         }
 
@@ -2836,6 +3510,11 @@
             grid,
             "GANESHA_SHEET_CSV debe ser una URL completa que empiece por https:// (por ejemplo el enlace de edición del Sheet)."
           );
+          var nt1 = document.getElementById("home-novidades-track");
+          if (nt1) {
+            nt1.innerHTML =
+              '<p class="home-nov-empty">Configura el enlace del catálogo en la hoja para ver novedades aquí.</p>';
+          }
           return Promise.resolve();
         }
 
@@ -2880,6 +3559,7 @@
               }
               observeNewCatalogCards(grid);
             }
+            renderHomeNovedades(objs);
           })
           .catch(function (err) {
             var msg =
@@ -2897,6 +3577,11 @@
             }
             if (typeof console !== "undefined" && console.warn) console.warn("[Ganesha catálogo]", err);
             showCatalogError(grid, msg);
+            var ntErr = document.getElementById("home-novidades-track");
+            if (ntErr) {
+              ntErr.innerHTML =
+                '<p class="home-nov-empty">No se pudieron cargar las novedades. Revisa el enlace del Sheet y vuelve a intentar.</p>';
+            }
           });
       }
 
@@ -2929,6 +3614,42 @@
           });
         });
       }
+
+      (function initHomeTestimonials() {
+        var root = document.querySelector("[data-home-testimonials]");
+        if (!root) return;
+        var track = document.getElementById("home-testi-track");
+        var dots = root.querySelectorAll(".home-testi__dot");
+        if (!track || !dots.length) return;
+        var ti = 0;
+        function showTesti(n) {
+          ti = (n + dots.length) % dots.length;
+          track.style.transform = "translateX(" + -ti * 100 + "%)";
+          dots.forEach(function (d, j) {
+            d.classList.toggle("active", j === ti);
+            d.setAttribute("aria-selected", j === ti ? "true" : "false");
+          });
+        }
+        dots.forEach(function (d) {
+          d.addEventListener("click", function () {
+            showTesti(parseInt(d.getAttribute("data-testi-index"), 10));
+          });
+        });
+        var tTimer = null;
+        function startTestiTimer() {
+          if (tTimer) clearInterval(tTimer);
+          if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            tTimer = setInterval(function () {
+              showTesti(ti + 1);
+            }, 8000);
+          }
+        }
+        root.addEventListener("mouseenter", function () {
+          if (tTimer) clearInterval(tTimer);
+        });
+        root.addEventListener("mouseleave", startTestiTimer);
+        startTestiTimer();
+      })();
 
       (function bootShopChrome() {
         var cat = parseCategoryFromLocation();
