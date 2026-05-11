@@ -1,6 +1,6 @@
 /**
  * GET /api/instagram-image?url=https://www.instagram.com/p/CODE/&img_index=1
- * Redirige (302) a la URL CDN de la foto. Pensado para usar en el Sheet (hero, foto, etc.).
+ * Redirige (302) a la imagen en CDN. Carruseles: la página /embed/ lista las fotos en orden.
  */
 
 module.exports = async function handler(req, res) {
@@ -42,37 +42,41 @@ module.exports = async function handler(req, res) {
   var ua =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36";
 
-  var htmlMain = "";
+  var embedPlainUrl = normalized.replace(/\/+$/, "") + "/embed/";
+  var htmlEmbed = "";
   try {
-    var rMain = await fetch(normalized, {
+    var rEmb = await fetch(embedPlainUrl, {
       redirect: "follow",
       headers: {
         "User-Agent": ua,
         Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "es-MX,es;q=0.9,en;q=0.8",
+        Referer: "https://www.instagram.com/",
       },
     });
-    htmlMain = await rMain.text();
+    htmlEmbed = await rEmb.text();
   } catch (e2) {
-    htmlMain = "";
+    htmlEmbed = "";
   }
 
-  var images = extractInstagramImages(htmlMain);
+  var images = extractCarouselFromEmbed(htmlEmbed);
 
   if (images.length < imgIndex) {
-    var embedUrl = normalized.replace(/\/+$/, "") + "/embed/captioned/";
+    var htmlMain = "";
     try {
-      var rEmb = await fetch(embedUrl, {
+      var rMain = await fetch(normalized, {
         redirect: "follow",
         headers: {
           "User-Agent": ua,
           Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
-          Referer: "https://www.instagram.com/",
+          "Accept-Language": "es-MX,es;q=0.9,en;q=0.8",
         },
       });
-      var htmlEmb = await rEmb.text();
-      images = mergeUniqueUrls(images, extractInstagramImages(htmlEmb));
-    } catch (e3) {}
+      htmlMain = await rMain.text();
+    } catch (e3) {
+      htmlMain = "";
+    }
+    images = mergeUniqueUrls(images, extractInstagramLegacy(htmlMain));
   }
 
   var chosen = pickImageStrict(images, imgIndex);
@@ -87,7 +91,7 @@ module.exports = async function handler(req, res) {
     res.end(
       "No se obtuvo la foto " +
         imgIndex +
-        " del post. Instagram a veces oculta el carrusel a bots: sube esa imagen a Drive o usa img_index=1."
+        " del post. Si es la 2.ª de un carrusel, Instagram a veces cambia el HTML; sube la foto a Drive o prueba de nuevo más tarde."
     );
     return;
   }
@@ -119,11 +123,92 @@ function mergeUniqueUrls(a, b) {
   return out;
 }
 
-function extractInstagramImages(html) {
+function decodeIgUrlChunk(raw) {
+  return String(raw || "")
+    .replace(/\\\//g, "/")
+    .replace(/\\u0026/g, "&")
+    .replace(/&amp;/g, "&");
+}
+
+function collectScontentUrlsFromHtml(html) {
+  var seen = {};
+  var ordered = [];
+  function addAll(re) {
+    var m;
+    re.lastIndex = 0;
+    while ((m = re.exec(html)) !== null) {
+      if (seen[m[0]]) continue;
+      seen[m[0]] = true;
+      ordered.push(m[0]);
+    }
+  }
+  addAll(/https:\/\/scontent[^"'\\\s<>]*\.(?:jpg|jpeg|webp)(?:\?[^"'\\\s<>]*)?/gi);
+  addAll(/https:\\\/\\\/scontent[^"'\\\s<>]*\.(?:jpg|jpeg|webp)(?:\?[^"'\\\s<>]*)?/gi);
+  return ordered.map(decodeIgUrlChunk);
+}
+
+function isProfilePicUrl(u) {
+  return u.indexOf("/v/t51.2885-19/") !== -1;
+}
+
+function isVideoNframeCoverUrl(u) {
+  try {
+    var clean = u.replace(/&amp;/g, "&");
+    var m = clean.match(/(?:^|[?&])efg=([^&]+)/);
+    if (!m) return false;
+    var b64 = decodeURIComponent(m[1]).replace(/-/g, "+").replace(/_/g, "/");
+    while (b64.length % 4) b64 += "=";
+    var json = Buffer.from(b64, "base64").toString("utf8");
+    return json.indexOf("video_nframe_cover_frame") !== -1;
+  } catch (e) {
+    return false;
+  }
+}
+
+function mediaKeyFromPostUrl(u) {
+  var m = u.match(/\/(\d{6,}_\d+_\d+_n\.(?:jpg|jpeg|webp))/i);
+  return m ? m[1] : u;
+}
+
+function urlQualityScore(u) {
+  var m = u.match(/s(\d+)x(\d+)/i);
+  if (m) return parseInt(m[1], 10) * parseInt(m[2], 10);
+  if (u.indexOf("1080") !== -1) return 1080 * 1080;
+  if (u.indexOf("640") !== -1) return 640 * 640;
+  return 10000;
+}
+
+/** Orden de carrusel desde /embed/ (excluye avatar y fotogramas basura de vídeo). */
+function extractCarouselFromEmbed(html) {
+  var urls = collectScontentUrlsFromHtml(html);
+  urls = urls.filter(function (u) {
+    if (isProfilePicUrl(u)) return false;
+    if (isVideoNframeCoverUrl(u)) return false;
+    return true;
+  });
+
+  var bestByKey = {};
+  urls.forEach(function (u) {
+    var k = mediaKeyFromPostUrl(u);
+    if (!bestByKey[k] || urlQualityScore(u) > urlQualityScore(bestByKey[k])) bestByKey[k] = u;
+  });
+
+  var order = [];
+  var seen = {};
+  urls.forEach(function (u) {
+    var k = mediaKeyFromPostUrl(u);
+    if (seen[k]) return;
+    seen[k] = true;
+    order.push(bestByKey[k]);
+  });
+  return order;
+}
+
+function extractInstagramLegacy(html) {
   var ordered = [];
   function push(raw) {
     if (!raw || typeof raw !== "string") return;
-    var u = raw.replace(/\\\//g, "/").replace(/\\u0026/g, "&");
+    var u = decodeIgUrlChunk(raw);
     if (!/^https?:\/\//i.test(u)) return;
     if (u.indexOf("cdninstagram.com") === -1 && u.indexOf("fbcdn.net") === -1) return;
     if (ordered.indexOf(u) !== -1) return;
