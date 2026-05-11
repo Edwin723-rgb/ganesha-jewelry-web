@@ -70,6 +70,9 @@ PASO A PASO EN EXCEL (Windows)
    - hero_1, hero_2, foto, etc. pueden llevar la URL del post con ?img_index= para elegir la foto del carrusel.
    - Copia el enlace desde la barra del navegador cuando el post está ABIERTO (ej. …/p/CyMHH0dvHNf/?img_index=2).
      NO uses texto de ejemplo tipo {codigo} ni inventes la URL: solo vale el código real que muestra Instagram.
+   - Si la 2.ª slide del post es un vídeo/reel o Instagram no publica esa foto en la vista “embed”, la web puede
+     repetir la primera imagen en el slot 2 (mejor que mostrar un fotograma equivocado). Para la 2.ª foto nítida,
+     súbela a Drive o ImgBB con URL directa.
 
    Imágenes y Google Drive:
    - Lo más fiable es la misma regla que «foto» de productos: un enlace que al abrirlo en el navegador

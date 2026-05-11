@@ -87,7 +87,7 @@ module.exports = async function handler(req, res) {
     images = mergeUniqueUrls(images, extractInstagramLegacy(htmlMain));
   }
 
-  var chosen = pickImageStrict(images, imgIndex);
+  var chosen = pickCarouselImage(images, imgIndex);
 
   if (!chosen && imgIndex === 1) {
     chosen = await microlinkFirstImage(normalized);
@@ -220,18 +220,34 @@ function isProfilePicUrl(u) {
   return u.indexOf("/v/t51.2885-19/") !== -1;
 }
 
-function isVideoNframeCoverUrl(u) {
+/** Decodifica el JSON del parámetro efg= (Meta usa base64 url-safe en URLs CDN). */
+function decodeInstagramEfgJson(u) {
   try {
     var clean = u.replace(/&amp;/g, "&");
     var m = clean.match(/(?:^|[?&])efg=([^&]+)/);
-    if (!m) return false;
+    if (!m) return "";
     var b64 = decodeURIComponent(m[1]).replace(/-/g, "+").replace(/_/g, "/");
     while (b64.length % 4) b64 += "=";
-    var json = Buffer.from(b64, "base64").toString("utf8");
-    return json.indexOf("video_nframe_cover_frame") !== -1;
+    return Buffer.from(b64, "base64").toString("utf8");
   } catch (e) {
-    return false;
+    return "";
   }
+}
+
+/**
+ * Excluye avatar, fotogramas de vídeo y portadas de reel que NO son la “foto 2” del carrusel.
+ * Antes solo filtrábamos video_nframe; quedaba video_default_cover_frame → imagen equivocada (otro producto).
+ */
+function isBadInstagramCarouselCdnUrl(u) {
+  if (isProfilePicUrl(u)) return true;
+  var j = decodeInstagramEfgJson(u);
+  if (!j) return false;
+  var lower = j.toLowerCase();
+  if (lower.indexOf("profile_pic") !== -1) return true;
+  if (lower.indexOf("cover_frame") !== -1) return true;
+  if (lower.indexOf("video_nframe") !== -1) return true;
+  if (lower.indexOf("video_default") !== -1) return true;
+  return false;
 }
 
 function mediaKeyFromPostUrl(u) {
@@ -247,13 +263,11 @@ function urlQualityScore(u) {
   return 10000;
 }
 
-/** Orden de carrusel desde /embed/ (excluye avatar y fotogramas basura de vídeo). */
+/** Orden de carrusel desde /embed/ (solo URLs “foto”; sin covers de vídeo ni avatar). */
 function extractCarouselFromEmbed(html) {
   var urls = collectScontentUrlsFromHtml(html);
   urls = urls.filter(function (u) {
-    if (isProfilePicUrl(u)) return false;
-    if (isVideoNframeCoverUrl(u)) return false;
-    return true;
+    return !isBadInstagramCarouselCdnUrl(u);
   });
 
   var bestByKey = {};
@@ -300,6 +314,18 @@ function extractInstagramLegacy(html) {
 function pickImageStrict(images, imgIndex) {
   if (!images || !images.length) return null;
   if (imgIndex <= images.length) return images[imgIndex - 1];
+  return null;
+}
+
+/**
+ * Si pides img_index=2 pero el embed solo publica una foto real (el resto son vídeos/covers filtrados),
+ * devolvemos la misma que la 1 para no mostrar un fotograma u otro producto.
+ */
+function pickCarouselImage(images, imgIndex) {
+  if (!images || !images.length) return null;
+  var chosen = pickImageStrict(images, imgIndex);
+  if (chosen) return chosen;
+  if (imgIndex >= 2 && images.length >= 1) return images[0];
   return null;
 }
 
