@@ -40,8 +40,10 @@ PASO A PASO EN EXCEL (Windows)
    No hace falta columna extra: la web filtra por «categoria» (aretes → /collections/aretes, etc.).
 
 4. GOOGLE SHEETS (lo que lee la página en producción)
-   La web NO abre tu archivo local; descarga datos desde la URL en index.html:
-   window.GANESHA_SHEET_CSV = "...gviz/tq?tqx=out:csv&gid=..."
+   La web NO abre tu archivo local; descarga datos desde la URL en index.html.
+   Puedes pegar el enlace de EDICIÓN del Sheet (…/edit?gid=…) o el CSV:
+   …/gviz/tq?tqx=out:csv&gid=…   (ojo: va «/tq?», no «/tqx=»).
+   La página prueba gviz y, si falla, export?format=csv con el mismo id y gid.
    Pasos típicos:
    - Pega tu tabla en Google Sheets (mismos encabezados).
    - Compartir → cualquier persona con el enlace (lectura).

@@ -1752,7 +1752,9 @@
   <!-- NÚMERO WHATSAPP: cambia aquí (52 + 10 dígitos) -->
   <script>
     window.GANESHA_WHATSAPP = "5299999999999";
-    window.GANESHA_SHEET_CSV = "https://docs.google.com/spreadsheets/d/1PuOslKBK9Lep5olhKRYo831IeOdQnamEpdc4X_VkItE/gviz/tqx=out:csv&gid=626003925";
+    /* Enlace de tu Sheet (edición); también válido: …/gviz/tq?tqx=out:csv&gid=… */
+    window.GANESHA_SHEET_CSV =
+      "https://docs.google.com/spreadsheets/d/1PuOslKBK9Lep5olhKRYo831IeOdQnamEpdc4X_VkItE/edit?gid=626003925#gid=626003925";
     /* Opcional: segunda pestaña del mismo Sheet (export CSV) con banners y portadas — ver plantillas/ganesha_medios_plantilla.csv */
     window.GANESHA_MEDIA_CSV = "";
     window.__ganeshaSiteMedia = {};
@@ -2712,6 +2714,34 @@
         }
       }
 
+      function sheetCsvFetchUrls(inputUrl) {
+        var u = String(inputUrl || "").trim();
+        if (!u) return [];
+        var idMatch = u.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+        if (!idMatch) return [u];
+        var id = idMatch[1];
+        var gidMatch = u.match(/[#?&]gid=([0-9]+)/);
+        var gid = gidMatch ? gidMatch[1] : "0";
+        var gviz = "https://docs.google.com/spreadsheets/d/" + id + "/gviz/tq?tqx=out:csv&gid=" + gid;
+        var exp = "https://docs.google.com/spreadsheets/d/" + id + "/export?format=csv&gid=" + gid;
+        var list = [];
+        if (u.indexOf("tqx=out:csv") !== -1 || u.indexOf("/gviz/tq") !== -1) list.push(u);
+        else if (u.indexOf("/export") !== -1 && u.indexOf("format=csv") !== -1) list.push(u);
+        if (list.indexOf(gviz) === -1) list.push(gviz);
+        if (list.indexOf(exp) === -1) list.push(exp);
+        return list;
+      }
+
+      function fetchSheetCsvWithFallback(urlList, i) {
+        i = i || 0;
+        if (!urlList || i >= urlList.length) return Promise.reject(new Error("HTTP 404"));
+        return fetch(urlList[i], { cache: "no-store", credentials: "omit", mode: "cors" }).then(function (res) {
+          if (res.ok) return res.text();
+          if (res.status === 404 || res.status === 403) return fetchSheetCsvWithFallback(urlList, i + 1);
+          throw new Error("HTTP " + res.status);
+        });
+      }
+
       function loadCatalog() {
         var grid = document.getElementById("catalog-grid");
         if (!grid) return Promise.resolve();
@@ -2725,13 +2755,18 @@
           return Promise.resolve();
         }
 
+        if (url.indexOf("http://") !== 0 && url.indexOf("https://") !== 0) {
+          showCatalogError(
+            grid,
+            "GANESHA_SHEET_CSV debe ser una URL completa que empiece por https:// (por ejemplo el enlace de edición del Sheet)."
+          );
+          return Promise.resolve();
+        }
+
+        var fetchUrls = sheetCsvFetchUrls(url);
         showCatalogLoader(grid);
 
-        return fetch(url, { cache: "no-store" })
-          .then(function (res) {
-            if (!res.ok) throw new Error("HTTP " + res.status);
-            return res.text();
-          })
+        return fetchSheetCsvWithFallback(fetchUrls)
           .then(function (text) {
             var matrix = parseCSV(text);
             if (!matrix.length) throw new Error("empty");
@@ -2782,7 +2817,7 @@
               msg =
                 "Error al descargar datos (" +
                 err.message +
-                "). Comprueba que el enlace del Sheet sea correcto y que el archivo no esté eliminado.";
+                "). En Google Sheets: Compartir → «Cualquier persona con el enlace» como lector. Revisa que el gid en la URL sea la pestaña del catálogo. Si sigue fallando, abre la consola del navegador (F12) por si bloquea un firewall o extensión.";
             }
             if (typeof console !== "undefined" && console.warn) console.warn("[Ganesha catálogo]", err);
             showCatalogError(grid, msg);
