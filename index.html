@@ -1755,8 +1755,19 @@
     /* Enlace de tu Sheet (edición); también válido: …/gviz/tq?tqx=out:csv&gid=… */
     window.GANESHA_SHEET_CSV =
       "https://docs.google.com/spreadsheets/d/1PuOslKBK9Lep5olhKRYo831IeOdQnamEpdc4X_VkItE/edit?gid=626003925#gid=626003925";
-    /* Opcional: segunda pestaña del mismo Sheet (export CSV) con banners y portadas — ver plantillas/ganesha_medios_plantilla.csv */
+    /* Opcional: segunda pestaña del mismo Sheet (gviz CSV) — plantillas/ganesha_medios_plantilla.csv */
     window.GANESHA_MEDIA_CSV = "";
+    /*
+     * Portadas del mosaico de inicio (Aretes, Collares, Pulseras, Gargantillas, Anillos).
+     * Pon aquí URLs directas (https) o enlaces de Drive/Instagram; se fusionan con la hoja «Medios» si existe.
+     */
+    window.GANESHA_HOME_COVERS = {
+      cover_aretes: "",
+      cover_collares: "",
+      cover_pulseras: "",
+      cover_gargantillas: "",
+      cover_anillos: ""
+    };
     window.__ganeshaSiteMedia = {};
     (function () {
       var phone = window.GANESHA_WHATSAPP.replace(/\D/g,"");
@@ -2527,17 +2538,31 @@
         });
       }
 
+      function mergeSiteMediaWithHomeCovers(base) {
+        base = base && typeof base === "object" ? base : {};
+        var inl = window.GANESHA_HOME_COVERS || {};
+        var out = Object.assign({}, base);
+        Object.keys(inl).forEach(function (k) {
+          var v = inl[k];
+          if (v != null && String(v).trim() !== "") out[k] = v;
+        });
+        return out;
+      }
+
       function applySiteMediaFromObject(obj) {
-        if (!obj || typeof obj !== "object") return;
-        window.__ganeshaSiteMedia = obj;
-        applyHeroCarouselMedia(obj);
-        applyHomeCategoryCovers(obj);
+        var merged = mergeSiteMediaWithHomeCovers(obj);
+        window.__ganeshaSiteMedia = merged;
+        applyHeroCarouselMedia(merged);
+        applyHomeCategoryCovers(merged);
         updatePageShell();
       }
 
       function loadSiteMedia() {
         var url = window.GANESHA_MEDIA_CSV || "";
-        if (!url || url.indexOf("SPREADSHEET_ID") !== -1) return Promise.resolve();
+        if (!url || url.indexOf("SPREADSHEET_ID") !== -1) {
+          applySiteMediaFromObject({});
+          return Promise.resolve();
+        }
         return fetch(url, { cache: "no-store" })
           .then(function (res) {
             if (!res.ok) throw new Error("HTTP " + res.status);
@@ -2545,12 +2570,16 @@
           })
           .then(function (text) {
             var matrix = parseCSV(text);
-            if (!matrix.length) return;
+            if (!matrix.length) {
+              applySiteMediaFromObject({});
+              return;
+            }
             var media = mediaObjectsFromMatrix(matrix);
-            if (media && Object.keys(media).length) applySiteMediaFromObject(media);
+            applySiteMediaFromObject(media || {});
           })
           .catch(function (err) {
             if (typeof console !== "undefined" && console.warn) console.warn("[Ganesha medios]", err);
+            applySiteMediaFromObject({});
           });
       }
 

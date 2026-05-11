@@ -53,7 +53,18 @@ PASO A PASO EN EXCEL (Windows)
    - Compartir → cualquier persona con el enlace (lectura).
    - Mantén la misma pestaña o actualiza el parámetro gid en esa URL si cambias de hoja.
 
-5. BANNERS DEL INICIO, PORTADAS DEL MENÚ Y BANNERS DE /collections/… (hoja «Medios»)
+5. PORTADAS DE LAS 5 CAJAS DEL INICIO (Aretes, Collares, …)
+   Opción A — rápido, en el código:
+   En index.html rellena el objeto window.GANESHA_HOME_COVERS (cover_aretes, cover_collares, …)
+   con la URL de cada foto. Vacío = sigue el gradiente de diseño.
+
+   Opción B — Google Sheet:
+   Crea la pestaña «Medios» con los encabezados de plantillas/ganesha_medios_plantilla.csv,
+   configura window.GANESHA_MEDIA_CSV con el export CSV (gviz) de esa pestaña.
+   Si una celda «cover_…» tiene URL, sustituye al gradiente. GANESHA_HOME_COVERS relleno
+   en index.html tiene prioridad sobre la hoja para esa misma clave.
+
+6. BANNERS DEL INICIO (hero), BANNERS DE /collections/… (misma hoja «Medios»)
    La hoja de PRODUCTOS solo alimenta las tarjetas del catálogo. Para el carrusel grande del inicio,
    las cinco casillas de categorías en la página principal y el fondo del banner de cada colección,
    usa una SEGUNDA pestaña en el mismo Google Sheet (o otro archivo) con la plantilla
@@ -82,5 +93,5 @@ PASO A PASO EN EXCEL (Windows)
      estar en «Cualquiera con el enlace» como mínimo lector. Si sigue sin verse, usa un host con enlace
      directo a la imagen.
 
-6. SI ALGO NO APARECE EN LA WEB
+7. SI ALGO NO APARECE EN LA WEB
    Revisa en este orden: stock = sí | categoría exacta | URL de foto que cargue | fila 1 con nombre y foto.
